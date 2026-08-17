@@ -45,11 +45,8 @@ const forgotPasswordContainer = document.getElementById('forgotPasswordContainer
 const btnForgotPassword = document.getElementById('btnForgotPassword');
 
 const btnGetStarted = document.getElementById('btnGetStarted');
-const btnSeeHowItWorks = document.getElementById('btnSeeHowItWorks');
-const videoModal = document.getElementById('videoModal');
-const btnCloseVideo = document.getElementById('btnCloseVideo');
-const demoVideo = document.getElementById('demoVideo');
-const videoContainer = document.getElementById('videoContainer');
+const bottomInstallBanner = document.getElementById('bottomInstallBanner');
+const btnBottomInstall = document.getElementById('btnBottomInstall');
 
 const btnExpense = document.getElementById('btnExpense');
 const btnIncome = document.getElementById('btnIncome');
@@ -98,20 +95,23 @@ window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
     if(installAppBtn) installAppBtn.classList.remove('hidden');
+    if(bottomInstallBanner) bottomInstallBanner.classList.remove('hidden');
 });
 
-if(installAppBtn) {
-    installAppBtn.addEventListener('click', async () => {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') {
-                deferredPrompt = null;
-                installAppBtn.classList.add('hidden');
-            }
+const triggerInstall = async () => {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+            deferredPrompt = null;
+            if(installAppBtn) installAppBtn.classList.add('hidden');
+            if(bottomInstallBanner) bottomInstallBanner.classList.add('hidden');
         }
-    });
-}
+    }
+};
+
+if(installAppBtn) installAppBtn.addEventListener('click', triggerInstall);
+if(btnBottomInstall) btnBottomInstall.addEventListener('click', triggerInstall);
 
 const showView = (viewName) => {
     [homeUI, authUI, dashboardUI, profileUI].forEach(el => el.classList.add('hidden'));
@@ -136,31 +136,6 @@ btnGetStarted.addEventListener('click', () => showView('auth'));
 btnOpenDashboard.addEventListener('click', () => { profileDropdown.classList.add('hidden'); showView('dashboard'); });
 btnOpenProfilePage.addEventListener('click', () => { profileDropdown.classList.add('hidden'); showView('profile'); });
 btnBackToDash.addEventListener('click', () => showView('dashboard'));
-
-btnSeeHowItWorks.addEventListener('click', () => {
-    videoModal.classList.remove('hidden');
-    videoModal.classList.add('flex');
-    requestAnimationFrame(() => {
-        videoModal.classList.remove('opacity-0');
-        videoContainer.classList.remove('scale-95');
-        videoContainer.classList.add('scale-100');
-    });
-    demoVideo.play();
-});
-
-const closeVideoModal = () => {
-    videoModal.classList.add('opacity-0');
-    videoContainer.classList.remove('scale-100');
-    videoContainer.classList.add('scale-95');
-    demoVideo.pause();
-    setTimeout(() => {
-        videoModal.classList.add('hidden');
-        videoModal.classList.remove('flex');
-    }, 300);
-};
-
-btnCloseVideo.addEventListener('click', closeVideoModal);
-videoModal.addEventListener('click', (e) => { if (e.target === videoModal) closeVideoModal(); });
 
 const showToast = (message, type = 'error') => {
     const toast = document.createElement('div');
