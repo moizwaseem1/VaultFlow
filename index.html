@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VaultFlow | Secure Account Statements</title>
+    <meta name="description" content="Track your expenses securely with VaultFlow. 100% local storage, PDF exports, and complete privacy for your financial statements.">
+    <meta name="keywords" content="expense tracker, account statements, local storage, secure finance app, pdf statements">
+    <meta name="author" content="Moiz Waseem">
+    <meta name="theme-color" content="#0f172a">
+    
+    <meta property="og:title" content="VaultFlow | Secure Account Statements">
+    <meta property="og:description" content="A 100% secure, locally stored account statement and expense tracker.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://vaultflow.vercel.app/">
+    
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/png" href="/assets/icon.png">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        darkBg: '#0f172a',
+                        darkCard: '#1e293b'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-gray-50 text-gray-900 dark:bg-darkBg dark:text-gray-100 transition-colors duration-300 min-h-screen flex flex-col">
+
+    <nav class="bg-white dark:bg-darkCard shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex-shrink-0 flex items-center gap-2">
+                    <i class="fa-solid fa-vault text-primary text-2xl"></i>
+                    <span class="font-bold text-xl tracking-tight">VaultFlow</span>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="#" class="text-gray-900 dark:text-white font-medium hover:text-primary transition">Dashboard</a>
+                    
+                    <button id="themeToggleBtn" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+                        <i class="fa-solid fa-moon dark:hidden"></i>
+                        <i class="fa-solid fa-sun hidden dark:block text-yellow-400"></i>
+                    </button>
+                    
+                    <button id="installAppBtn" class="hidden bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-600 transition shadow-sm">
+                        <i class="fa-solid fa-download mr-2"></i> Install App
+                    </button>
+                </div>
+
+                <div class="md:hidden flex items-center gap-4">
+                    <button id="themeToggleBtnMobile" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+                        <i class="fa-solid fa-moon dark:hidden"></i>
+                        <i class="fa-solid fa-sun hidden dark:block text-yellow-400"></i>
+                    </button>
+                    <button id="mobileMenuBtn" class="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white focus:outline-none">
+                        <i class="fa-solid fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="mobileMenu" class="hidden md:hidden bg-white dark:bg-darkCard border-t dark:border-gray-700">
+            <div class="px-4 pt-4 pb-4 space-y-4">
+                <a href="#" class="block text-base font-medium text-gray-900 dark:text-white hover:text-primary">Dashboard</a>
+                
+                <button id="installAppBtnMobile" class="hidden w-full text-left flex items-center px-4 py-2 rounded-md text-base font-medium bg-primary text-white">
+                    <i class="fa-solid fa-download mr-2"></i> Install App
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" id="mainContent">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="col-span-1 lg:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Balance</h3>
+            <p class="text-3xl font-bold mt-2 text-gray-900 dark:text-white" id="totalBalance">0.00</p>
+        </div>
+        <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Income</h3>
+            <p class="text-3xl font-bold mt-2 text-green-500" id="totalIncome">0.00</p>
+        </div>
+        <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Expense</h3>
+            <p class="text-3xl font-bold mt-2 text-red-500" id="totalExpense">0.00</p>
+        </div>
+    </div>
+
+    <div class="col-span-1 lg:col-span-1 bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 h-fit">
+        <h2 class="text-xl font-bold mb-6 text-gray-900 dark:text-white">Add Statement</h2>
+        <form id="transactionForm" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <button type="button" id="btnExpense" class="w-full py-2 bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 rounded-lg font-medium border-2 border-red-500 transition-all">Expense</button>
+                    <button type="button" id="btnIncome" class="w-full py-2 bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 rounded-lg font-medium border-2 border-transparent transition-all">Income</button>
+                </div>
+                <input type="hidden" id="txType" value="expense">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Amount</label>
+                <div class="relative">
+                    <input type="number" id="txAmount" required step="0.01" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Method</label>
+                <select id="txMethod" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all">
+                    <option value="card">Card</option>
+                    <option value="cash">Cash</option>
+                    <option value="bank">Bank</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date</label>
+                <input type="date" id="txDate" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Reason (Optional)</label>
+                <input type="text" id="txReason" placeholder="Groceries, Client Payment..." class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Proof (Optional)</label>
+                <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg hover:border-primary transition-all">
+                    <div class="space-y-1 text-center">
+                        <i class="fa-solid fa-cloud-arrow-up text-3xl text-gray-400 mb-2"></i>
+                        <div class="flex text-sm text-gray-600 dark:text-gray-400 justify-center">
+                            <label for="txProof" class="relative cursor-pointer bg-transparent rounded-md font-medium text-primary hover:text-blue-500">
+                                <span>Upload a file</span>
+                                <input id="txProof" name="txProof" type="file" class="sr-only" accept="image/*,application/pdf">
+                            </label>
+                        </div>
+                        <p class="text-xs text-gray-500 dark:text-gray-400" id="fileNameDisplay">PNG, JPG, PDF up to 10MB</p>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="w-full py-3 bg-primary text-white rounded-lg font-bold hover:bg-blue-600 transition-colors shadow-md mt-4">
+                Save Statement
+            </button>
+        </form>
+    </div>
+
+    <div class="col-span-1 lg:col-span-2 bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col h-full min-h-[500px]">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white">Recent Statements</h2>
+            <button id="btnGeneratePDF" class="w-full sm:w-auto px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
+                <i class="fa-solid fa-file-pdf"></i> Export PDF
+            </button>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+            <div>
+                <label class="block text-xs font-medium text-gray-500 mb-1">Start Date</label>
+                <input type="date" id="filterStart" class="w-full text-sm px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white outline-none">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-500 mb-1">End Date</label>
+                <input type="date" id="filterEnd" class="w-full text-sm px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white outline-none">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-500 mb-1">Method</label>
+                <select id="filterMethod" class="w-full text-sm px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white outline-none">
+                    <option value="all">All</option>
+                    <option value="card">Card</option>
+                    <option value="cash">Cash</option>
+                    <option value="bank">Bank</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <div class="flex items-end">
+                <button id="btnApplyFilter" class="w-full text-sm py-1.5 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white rounded font-medium hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors">Filter</button>
+            </div>
+        </div>
+
+        <div class="flex-grow overflow-auto">
+            <div class="min-w-full inline-block align-middle">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead>
+                        <tr>
+                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                            <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Details</th>
+                            <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                            <th class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Proof</th>
+                            <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="statementsList" class="divide-y divide-gray-200 dark:divide-gray-700">
+                    </tbody>
+                </table>
+                
+                <div id="emptyState" class="py-12 flex flex-col items-center justify-center text-center">
+                    <div class="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
+                        <i class="fa-solid fa-receipt text-2xl text-gray-400"></i>
+                    </div>
+                    <h3 class="text-sm font-medium text-gray-900 dark:text-white">No statements yet</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Add your first record using the form.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    </main>
+
+    <footer class="bg-white dark:bg-darkCard shadow-inner mt-auto">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="text-sm text-gray-500 dark:text-gray-400">
+                &copy; <span id="currentYear"></span> VaultFlow. All data stored locally.
+            </div>
+            <div class="text-sm font-medium">
+                Engineered by <a href="https://moizwaseem.me" target="_blank" class="text-primary hover:underline">Moiz Waseem</a>
+            </div>
+            <div class="flex space-x-4">
+                <a href="mailto:moizwaseemprofessional@yahoo.com" class="text-gray-400 hover:text-primary transition">
+                    <i class="fa-solid fa-envelope text-xl"></i>
+                </a>
+                <a href="https://linkedin.com/in/moizwaseem" target="_blank" class="text-gray-400 hover:text-primary transition">
+                    <i class="fa-brands fa-linkedin text-xl"></i>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+    <script src="/js/theme.js"></script>
+    <script src="/js/db.js"></script>
+    <script src="/js/app.js"></script>
+</body>
+</html>
