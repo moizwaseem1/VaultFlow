@@ -3,13 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VaultFlow | Secure Account Statements</title>
-    <meta name="description" content="Track your expenses securely with VaultFlow. Cloud synced, PDF exports, and complete privacy.">
+    <title>VaultFlow | Free Secure Account & Expense Tracker</title>
+    <meta name="description" content="VaultFlow is a free, highly secure account statement manager. Track your expenses, generate PDF reports, and manage finances securely with cloud sync.">
+    <meta name="keywords" content="VaultFlow, account statements, expense tracker, PDF statement generator, secure finance app, personal finance, budget tracker">
     <meta name="author" content="Moiz Waseem">
     <meta name="theme-color" content="#0f172a">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://vaultflow-storage.vercel.app/">
+    
+    <meta property="og:title" content="VaultFlow | Free Secure Account & Expense Tracker">
+    <meta property="og:description" content="Track your expenses securely with VaultFlow. Cloud synced, PDF exports, and complete privacy.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://vaultflow-storage.vercel.app/">
+    <meta property="og:image" content="https://vaultflow-storage.vercel.app/assets/icon.png">
+    <meta property="og:site_name" content="VaultFlow">
+    
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="VaultFlow | Free Secure Account & Expense Tracker">
+    <meta name="twitter:description" content="Track your expenses securely with VaultFlow. Cloud synced, PDF exports, and complete privacy.">
+    <meta name="twitter:image" content="https://vaultflow-storage.vercel.app/assets/icon.png">
     
     <link rel="manifest" href="/manifest.json">
     <link rel="icon" type="image/png" href="/assets/icon.png">
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "VaultFlow",
+      "url": "https://vaultflow-storage.vercel.app/",
+      "description": "Secure cloud-based account statement and expense tracker.",
+      "applicationCategory": "FinanceApplication",
+      "operatingSystem": "All",
+      "author": {
+        "@type": "Person",
+        "name": "Moiz Waseem"
+      }
+    }
+    </script>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -101,18 +132,40 @@
     <main class="flex-grow w-full flex flex-col items-center relative transition-colors duration-300">
         
         <div id="homeUI" class="flex-grow flex flex-col items-center justify-center text-center px-4 py-12 md:py-24 w-full max-w-5xl">
-            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 dark:bg-blue-900/30 text-primary text-sm font-bold mb-8">
-                <i class="fa-solid fa-shield-halved"></i> 100% Secure Cloud Sync
-            </div>
             <h1 class="text-4xl sm:text-5xl md:text-7xl font-spicy text-gray-900 dark:text-white mb-6 leading-tight">
                 Manage Your Statements <br> <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-600">Like A Pro.</span>
             </h1>
             <p class="text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-2xl mb-10">VaultFlow is the lightning-fast account statement manager. Track your expenses, generate beautiful PDF reports, and maintain total control of your finances across any device.</p>
             
-            <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+            <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto mb-16">
                 <button id="btnGetStarted" class="px-8 py-3 bg-primary text-white rounded-xl font-bold text-lg hover:bg-blue-600 transition shadow-lg w-full sm:w-auto">Get Started</button>
-                <button id="btnSeeHowItWorks" class="px-8 py-3 bg-white dark:bg-darkCard text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-xl font-bold text-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition shadow-sm flex items-center justify-center gap-2 w-full sm:w-auto">
-                    <i class="fa-solid fa-circle-play text-xl text-purple-500"></i> Watch Demo
+            </div>
+
+            <div class="w-full text-left grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+                <div class="bg-white dark:bg-darkCard p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800">
+                    <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 text-primary rounded-xl flex items-center justify-center text-2xl mb-4"><i class="fa-solid fa-user-plus"></i></div>
+                    <h3 class="text-xl font-bold mb-2">1. Register</h3>
+                    <p class="text-gray-600 dark:text-gray-400">Create a secure account with your email or continue instantly with Google to set up your encrypted cloud vault.</p>
+                </div>
+                <div class="bg-white dark:bg-darkCard p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800">
+                    <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 text-purple-600 rounded-xl flex items-center justify-center text-2xl mb-4"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                    <h3 class="text-xl font-bold mb-2">2. Track</h3>
+                    <p class="text-gray-600 dark:text-gray-400">Add your income and expenses, link proof receipts, and watch your total balance calculate automatically in real-time.</p>
+                </div>
+                <div class="bg-white dark:bg-darkCard p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800">
+                    <div class="w-12 h-12 bg-green-100 dark:bg-green-900/30 text-green-600 rounded-xl flex items-center justify-center text-2xl mb-4"><i class="fa-solid fa-file-pdf"></i></div>
+                    <h3 class="text-xl font-bold mb-2">3. Export</h3>
+                    <p class="text-gray-600 dark:text-gray-400">Filter your ledger by dates or payment methods, then generate a beautiful, professional PDF statement in one click.</p>
+                </div>
+            </div>
+            
+            <div id="bottomInstallBanner" class="hidden w-full bg-gradient-to-r from-primary to-purple-600 rounded-2xl p-6 sm:p-8 text-white flex flex-col sm:flex-row items-center justify-between text-left shadow-lg">
+                <div class="mb-4 sm:mb-0">
+                    <h3 class="text-2xl font-bold mb-1">Install VaultFlow App</h3>
+                    <p class="text-blue-100">Get the full experience on your home screen for fast access.</p>
+                </div>
+                <button id="btnBottomInstall" class="px-6 py-3 bg-white text-gray-900 rounded-xl font-bold hover:bg-gray-100 transition shadow-sm w-full sm:w-auto flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-download"></i> Install Now
                 </button>
             </div>
         </div>
@@ -308,17 +361,7 @@
             </div>
         </div>
     </footer>
-
-    <div id="videoModal" class="fixed inset-0 bg-black/80 z-[110] hidden items-center justify-center backdrop-blur-sm transition-opacity opacity-0">
-        <div class="relative w-full max-w-4xl mx-4 bg-black rounded-xl overflow-hidden shadow-2xl scale-95 transition-transform" id="videoContainer">
-            <button id="btnCloseVideo" class="absolute top-4 right-4 text-white hover:text-red-500 z-10 bg-black/50 w-10 h-10 rounded-full flex items-center justify-center transition"><i class="fa-solid fa-xmark text-xl"></i></button>
-            <video id="demoVideo" controls class="w-full h-auto max-h-[80vh] outline-none">
-                <source src="/assets/demo.mp4" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-        </div>
-    </div>
-
+    
     <div id="toastContainer" class="fixed bottom-4 right-4 z-[100] flex flex-col gap-2 pointer-events-none"></div>
 
     <div id="confirmModal" class="fixed inset-0 bg-black/50 z-[100] hidden items-center justify-center backdrop-blur-sm transition-opacity">
