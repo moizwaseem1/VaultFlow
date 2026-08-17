@@ -12,7 +12,6 @@
     <link rel="icon" type="image/png" href="/assets/icon.png">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Righteous&display=swap" rel="stylesheet">
     
@@ -37,14 +36,8 @@
                     },
                     keyframes: {
                         'gradient-x': {
-                            '0%, 100%': {
-                                'background-size': '200% 200%',
-                                'background-position': 'left center'
-                            },
-                            '50%': {
-                                'background-size': '200% 200%',
-                                'background-position': 'right center'
-                            }
+                            '0%, 100%': { 'background-size': '200% 200%', 'background-position': 'left center' },
+                            '50%': { 'background-size': '200% 200%', 'background-position': 'right center' }
                         },
                         'float': {
                             '0%, 100%': { transform: 'translateY(0)' },
@@ -61,202 +54,218 @@
 <body class="bg-gray-50 text-gray-900 dark:bg-darkBg dark:text-gray-100 transition-colors duration-300 min-h-screen flex flex-col">
 
     <div id="splashScreen" class="fixed inset-0 bg-white dark:bg-darkBg z-[100] flex items-center justify-center transition-opacity duration-1000 hidden opacity-100">
-        
         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-blue-500/20 rounded-full blur-3xl animate-pulse"></div>
         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-56 h-56 bg-purple-500/20 rounded-full blur-3xl animate-pulse" style="animation-delay: 0.5s;"></div>
-        
         <h1 id="splashText" class="relative z-10 text-6xl md:text-8xl font-spicy text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 animate-gradient-x drop-shadow-2xl scale-95 transition-all duration-1000 opacity-0 tracking-wide"></h1>
     </div>
 
-    <div id="authScreen" class="flex-grow flex items-center justify-center px-4 py-12 z-50 hidden">
-        <div class="max-w-md w-full bg-white dark:bg-darkCard p-8 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800">
-            <div class="text-center mb-8">
-                <i class="fa-solid fa-vault text-primary text-4xl mb-2"></i>
-                <h2 class="text-3xl font-bold">Welcome to VaultFlow</h2>
-                <p class="text-gray-500 dark:text-gray-400 mt-2">Securely sync your financial statements.</p>
-            </div>
-            
-            <form id="authForm" class="space-y-4">
-                <input type="text" id="authName" placeholder="Your Name" class="hidden w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-primary outline-none">
-                <input type="email" id="authEmail" placeholder="Email Address" required class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-primary outline-none">
-                
-                <div>
-                    <input type="password" id="authPassword" placeholder="Password" required class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-primary outline-none">
-                    <div class="text-right mt-1" id="forgotPasswordContainer">
-                        <button type="button" id="btnForgotPassword" class="text-sm font-medium text-primary hover:underline focus:outline-none">Forgot Password?</button>
-                    </div>
+    <nav id="globalNav" class="bg-white dark:bg-darkCard shadow-sm sticky top-0 z-40 w-full transition-colors duration-300 border-b border-gray-200 dark:border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex-shrink-0 flex items-center gap-2 cursor-pointer" id="navLogoBtn">
+                    <i class="fa-solid fa-vault text-primary text-2xl"></i>
+                    <span class="font-bold text-xl tracking-tight hidden sm:block">VaultFlow</span>
                 </div>
                 
-                <button type="submit" id="authSubmitBtn" class="w-full py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg font-bold hover:opacity-90 transition shadow-md">
-                    Sign In
-                </button>
-            </form>
-            
-            <div class="mt-4 text-center">
-                <button id="toggleAuthMode" class="text-primary hover:underline text-sm font-medium">Need an account? Register here.</button>
-            </div>
-
-            <div class="mt-6 flex items-center">
-                <div class="flex-grow border-t border-gray-300 dark:border-gray-600"></div>
-                <span class="mx-4 text-sm text-gray-500">OR</span>
-                <div class="flex-grow border-t border-gray-300 dark:border-gray-600"></div>
-            </div>
-
-            <button id="googleSignInBtn" class="mt-6 w-full py-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition shadow-sm flex items-center justify-center gap-3">
-                <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" class="w-5 h-5">
-                Continue with Google
-            </button>
-        </div>
-    </div>
-
-    <div id="appContainer" class="hidden flex-col min-h-screen">
-        <nav class="bg-white dark:bg-darkCard shadow-md sticky top-0 z-40">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between h-16 items-center">
-                    <div class="flex-shrink-0 flex items-center gap-2">
-                        <i class="fa-solid fa-vault text-primary text-2xl"></i>
-                        <span class="font-bold text-xl tracking-tight">VaultFlow</span>
-                    </div>
+                <div class="flex items-center space-x-3 sm:space-x-4">
+                    <button id="themeToggleBtn" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                        <i class="fa-solid fa-moon dark:hidden"></i>
+                        <i class="fa-solid fa-sun hidden dark:block text-yellow-400"></i>
+                    </button>
                     
-                    <div class="flex items-center space-x-4">
-                        <button id="themeToggleBtn" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition">
-                            <i class="fa-solid fa-moon dark:hidden"></i>
-                            <i class="fa-solid fa-sun hidden dark:block text-yellow-400"></i>
+                    <button id="installAppBtn" class="hidden bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white px-3 py-2 rounded-lg font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition text-sm shadow-sm flex items-center gap-2">
+                        <i class="fa-solid fa-download"></i> <span class="hidden sm:inline">Install App</span>
+                    </button>
+                    
+                    <button id="navLoginBtn" class="bg-primary text-white px-5 py-2 rounded-lg font-medium hover:bg-blue-600 transition shadow-sm">
+                        Sign In
+                    </button>
+
+                    <div class="relative hidden" id="navProfileSection">
+                        <button id="profileBtn" class="flex items-center gap-2 focus:outline-none">
+                            <img id="navProfilePic" src="" class="w-8 h-8 rounded-full border-2 border-primary object-cover shadow-sm">
                         </button>
                         
+                        <div id="profileDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-darkCard rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 py-2 overflow-hidden">
+                            <button id="btnOpenDashboard" class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition"><i class="fa-solid fa-table-columns w-5"></i> Dashboard</button>
+                            <button id="btnOpenProfilePage" class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 transition"><i class="fa-solid fa-user-gear w-5"></i> Settings</button>
+                            <div class="border-t border-gray-100 dark:border-gray-700 my-1"></div>
+                            <button id="btnSignOut" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50 dark:hover:bg-gray-800 transition"><i class="fa-solid fa-right-from-bracket w-5"></i> Sign Out</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow w-full flex flex-col items-center relative transition-colors duration-300">
+        
+        <div id="homeUI" class="flex-grow flex flex-col items-center justify-center text-center px-4 py-12 md:py-24 w-full max-w-5xl">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 dark:bg-blue-900/30 text-primary text-sm font-bold mb-8">
+                <i class="fa-solid fa-shield-halved"></i> 100% Secure Cloud Sync
+            </div>
+            <h1 class="text-4xl sm:text-5xl md:text-7xl font-spicy text-gray-900 dark:text-white mb-6 leading-tight">
+                Manage Your Statements <br> <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-purple-600">Like A Pro.</span>
+            </h1>
+            <p class="text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-2xl mb-10">VaultFlow is the lightning-fast account statement manager. Track your expenses, generate beautiful PDF reports, and maintain total control of your finances across any device.</p>
+            
+            <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                <button id="btnGetStarted" class="px-8 py-3 bg-primary text-white rounded-xl font-bold text-lg hover:bg-blue-600 transition shadow-lg w-full sm:w-auto">Get Started</button>
+                <button id="btnSeeHowItWorks" class="px-8 py-3 bg-white dark:bg-darkCard text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 rounded-xl font-bold text-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition shadow-sm flex items-center justify-center gap-2 w-full sm:w-auto">
+                    <i class="fa-solid fa-circle-play text-xl text-purple-500"></i> Watch Demo
+                </button>
+            </div>
+        </div>
+
+        <div id="authUI" class="w-full max-w-md px-4 py-12 mt-4 sm:mt-10 hidden">
+            <div class="bg-white dark:bg-darkCard p-8 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800">
+                <div class="text-center mb-8">
+                    <i class="fa-solid fa-vault text-primary text-4xl mb-2"></i>
+                    <h2 class="text-3xl font-bold">Welcome Back</h2>
+                    <p class="text-gray-500 dark:text-gray-400 mt-2">Securely access your vault.</p>
+                </div>
+                
+                <form id="authForm" class="space-y-4">
+                    <input type="text" id="authName" placeholder="Your Name" class="hidden w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-primary outline-none">
+                    <input type="email" id="authEmail" placeholder="Email Address" required class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-primary outline-none">
+                    <div>
+                        <input type="password" id="authPassword" placeholder="Password" required class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-primary outline-none">
+                        <div class="text-right mt-1" id="forgotPasswordContainer">
+                            <button type="button" id="btnForgotPassword" class="text-sm font-medium text-primary hover:underline focus:outline-none">Forgot Password?</button>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" id="authSubmitBtn" class="w-full py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg font-bold hover:opacity-90 transition shadow-md">
+                        Sign In
+                    </button>
+                </form>
+                
+                <div class="mt-4 text-center">
+                    <button id="toggleAuthMode" class="text-primary hover:underline text-sm font-medium">Need an account? Register here.</button>
+                </div>
+
+                <div class="mt-6 flex items-center">
+                    <div class="flex-grow border-t border-gray-300 dark:border-gray-600"></div>
+                    <span class="mx-4 text-sm text-gray-500">OR</span>
+                    <div class="flex-grow border-t border-gray-300 dark:border-gray-600"></div>
+                </div>
+
+                <button id="googleSignInBtn" class="mt-6 w-full py-3 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition shadow-sm flex items-center justify-center gap-3">
+                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" class="w-5 h-5">
+                    Continue with Google
+                </button>
+            </div>
+        </div>
+
+        <div id="dashboardUI" class="w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-8 hidden gap-6">
+            <div class="col-span-1 lg:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+                    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Balance</h3>
+                    <p class="text-3xl font-bold mt-2 text-gray-900 dark:text-white" id="totalBalance">0.00</p>
+                </div>
+                <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+                    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Income</h3>
+                    <p class="text-3xl font-bold mt-2 text-green-500" id="totalIncome">0.00</p>
+                </div>
+                <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+                    <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Expense</h3>
+                    <p class="text-3xl font-bold mt-2 text-red-500" id="totalExpense">0.00</p>
+                </div>
+            </div>
+
+            <div class="col-span-1 lg:col-span-1 bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 h-fit">
+                <h2 class="text-xl font-bold mb-6 text-gray-900 dark:text-white">Add Statement</h2>
+                <form id="transactionForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button type="button" id="btnExpense" class="w-full py-2 bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 rounded-lg font-medium border-2 border-red-500 transition-all">Expense</button>
+                            <button type="button" id="btnIncome" class="w-full py-2 bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 rounded-lg font-medium border-2 border-transparent transition-all">Income</button>
+                        </div>
+                        <input type="hidden" id="txType" value="expense">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Amount</label>
                         <div class="relative">
-                            <button id="profileBtn" class="flex items-center gap-2 focus:outline-none">
-                                <img id="navProfilePic" src="https://ui-avatars.com/api/?name=User&background=3b82f6&color=fff" class="w-8 h-8 rounded-full border-2 border-primary object-cover">
-                            </button>
-                            
-                            <div id="profileDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white dark:bg-darkCard rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-1">
-                                <button id="btnOpenProfilePage" class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800">My Profile</button>
-                                <button id="btnSignOut" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-800">Sign Out</button>
-                            </div>
+                            <input type="number" id="txAmount" required step="0.01" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-primary outline-none">
                         </div>
                     </div>
-                </div>
-            </div>
-        </nav>
-
-        <main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" id="mainContent">
-            <!-- The Dashboard UI from our previous steps goes here -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6" id="dashboardUI">
-                 <div class="col-span-1 lg:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-                        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Balance</h3>
-                        <p class="text-3xl font-bold mt-2 text-gray-900 dark:text-white" id="totalBalance">0.00</p>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Method</label>
+                        <select id="txMethod" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-primary outline-none">
+                            <option value="card">Card</option>
+                            <option value="cash">Cash</option>
+                            <option value="bank">Bank</option>
+                            <option value="other">Other</option>
+                        </select>
                     </div>
-                    <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-                        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Income</h3>
-                        <p class="text-3xl font-bold mt-2 text-green-500" id="totalIncome">0.00</p>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date</label>
+                        <input type="date" id="txDate" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-primary outline-none">
                     </div>
-                    <div class="bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-                        <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Expense</h3>
-                        <p class="text-3xl font-bold mt-2 text-red-500" id="totalExpense">0.00</p>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Reason (Optional)</label>
+                        <input type="text" id="txReason" placeholder="Groceries, Client Payment..." class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-primary outline-none">
                     </div>
-                </div>
-
-                <div class="col-span-1 lg:col-span-1 bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 h-fit">
-                    <h2 class="text-xl font-bold mb-6 text-gray-900 dark:text-white">Add Statement</h2>
-                    <form id="transactionForm" class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Type</label>
-                            <div class="grid grid-cols-2 gap-2">
-                                <button type="button" id="btnExpense" class="w-full py-2 bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 rounded-lg font-medium border-2 border-red-500 transition-all">Expense</button>
-                                <button type="button" id="btnIncome" class="w-full py-2 bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 rounded-lg font-medium border-2 border-transparent transition-all">Income</button>
-                            </div>
-                            <input type="hidden" id="txType" value="expense">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Amount</label>
-                            <div class="relative">
-                                <input type="number" id="txAmount" required step="0.01" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all">
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Method</label>
-                            <select id="txMethod" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all">
-                                <option value="card">Card</option>
-                                <option value="cash">Cash</option>
-                                <option value="bank">Bank</option>
-                                <option value="other">Other</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date</label>
-                            <input type="date" id="txDate" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Reason (Optional)</label>
-                            <input type="text" id="txReason" placeholder="Groceries, Client Payment..." class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Proof URL (Optional)</label>
-                            <input type="url" id="txProof" placeholder="https://link-to-image" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all">
-                        </div>
-
-                        <button type="submit" class="w-full py-3 bg-primary text-white rounded-lg font-bold hover:bg-blue-600 transition-colors shadow-md mt-4">
-                            Save Statement
-                        </button>
-                    </form>
-                </div>
-
-                <div class="col-span-1 lg:col-span-2 bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col h-full min-h-[500px]">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">Recent Statements</h2>
-                        <button id="btnGeneratePDF" class="w-full sm:w-auto px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-file-pdf"></i> Export PDF
-                        </button>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Proof URL (Optional)</label>
+                        <input type="url" id="txProof" placeholder="https://link-to-image" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-primary outline-none">
                     </div>
-
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                        <div>
-                            <label class="block text-xs font-medium text-gray-500 mb-1">Start Date</label>
-                            <input type="date" id="filterStart" class="w-full text-sm px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-medium text-gray-500 mb-1">End Date</label>
-                            <input type="date" id="filterEnd" class="w-full text-sm px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-medium text-gray-500 mb-1">Method</label>
-                            <select id="filterMethod" class="w-full text-sm px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white outline-none">
-                                <option value="all">All</option>
-                                <option value="card">Card</option>
-                                <option value="cash">Cash</option>
-                                <option value="bank">Bank</option>
-                                <option value="other">Other</option>
-                            </select>
-                        </div>
-                        <div class="flex items-end">
-                            <button id="btnApplyFilter" class="w-full text-sm py-1.5 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white rounded font-medium hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors">Filter</button>
-                        </div>
-                    </div>
-
-                    <div class="flex-grow overflow-auto">
-                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                            <thead>
-                                <tr>
-                                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                                    <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Details</th>
-                                    <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase">Amount</th>
-                                    <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody id="statementsList" class="divide-y divide-gray-200 dark:divide-gray-700">
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                    <button type="submit" class="w-full py-3 bg-primary text-white rounded-lg font-bold hover:bg-blue-600 transition-colors shadow-md mt-4">
+                        Save Statement
+                    </button>
+                </form>
             </div>
 
-            <div id="profileUI" class="hidden w-full max-w-2xl mx-auto bg-white dark:bg-darkCard p-5 sm:p-8 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 mt-2 sm:mt-0">
+            <div class="col-span-1 lg:col-span-2 bg-white dark:bg-darkCard p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col h-full min-h-[500px]">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white">Recent Statements</h2>
+                    <button id="btnGeneratePDF" class="w-full sm:w-auto px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-file-pdf"></i> Export PDF
+                    </button>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Start Date</label>
+                        <input type="date" id="filterStart" class="w-full text-sm px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1">End Date</label>
+                        <input type="date" id="filterEnd" class="w-full text-sm px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Method</label>
+                        <select id="filterMethod" class="w-full text-sm px-2 py-1 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 outline-none">
+                            <option value="all">All</option>
+                            <option value="card">Card</option>
+                            <option value="cash">Cash</option>
+                            <option value="bank">Bank</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button id="btnApplyFilter" class="w-full text-sm py-1.5 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white rounded font-medium hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors">Filter</button>
+                    </div>
+                </div>
+                <div class="flex-grow overflow-auto">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead>
+                            <tr>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                                <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Details</th>
+                                <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase">Amount</th>
+                                <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="statementsList" class="divide-y divide-gray-200 dark:divide-gray-700">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="profileUI" class="w-full max-w-2xl px-4 sm:px-6 lg:px-8 py-8 hidden">
+            <div class="bg-white dark:bg-darkCard p-5 sm:p-8 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
                 <div class="flex items-center gap-4 mb-6 sm:mb-8">
                     <button id="btnBackToDash" class="text-gray-500 hover:text-primary"><i class="fa-solid fa-arrow-left text-xl"></i></button>
                     <h2 class="text-xl sm:text-2xl font-bold">Profile Settings</h2>
@@ -265,30 +274,31 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Update Display Name</label>
                         <div class="flex flex-col sm:flex-row gap-3">
-                            <input type="text" id="updateNameInput" class="flex-grow px-4 py-3 sm:py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-primary outline-none text-base">
+                            <input type="text" id="updateNameInput" class="flex-grow px-4 py-3 sm:py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-primary outline-none">
                             <button id="btnUpdateName" class="w-full sm:w-auto px-6 py-3 sm:py-2 bg-primary text-white rounded-lg font-medium hover:bg-blue-600 transition shadow-sm">Save</button>
                         </div>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Change Password</label>
                         <div class="flex flex-col sm:flex-row gap-3">
-                            <input type="password" id="updatePasswordInput" class="flex-grow px-4 py-3 sm:py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-primary outline-none text-base">
+                            <input type="password" id="updatePasswordInput" class="flex-grow px-4 py-3 sm:py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-primary outline-none">
                             <button id="btnUpdatePassword" class="w-full sm:w-auto px-6 py-3 sm:py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg font-medium hover:opacity-90 transition shadow-sm">Update</button>
                         </div>
                     </div>
                 </div>
             </div>
-        </main>
+        </div>
+    </main>
 
-        <footer class="bg-white dark:bg-darkCard shadow-inner mt-auto">
-            <div class="max-w-7xl mx-auto py-6 px-4 flex flex-col md:flex-row justify-between items-center gap-4">
-                <div class="text-sm text-gray-500 dark:text-gray-400">
-                    &copy; <span id="currentYear"></span> VaultFlow. Secured.
-                </div>
-                <div class="text-sm font-medium">
-                    Engineered by <a href="https://moizwaseem.me" target="_blank" class="text-primary hover:underline">Moiz Waseem</a>
-                </div>
-                <div class="flex space-x-4">
+    <footer class="bg-white dark:bg-darkCard border-t border-gray-200 dark:border-gray-800 mt-auto">
+        <div class="max-w-7xl mx-auto py-6 px-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="text-sm text-gray-500 dark:text-gray-400">
+                &copy; <span id="currentYear"></span> VaultFlow. Cloud Secured.
+            </div>
+            <div class="text-sm font-medium">
+                Engineered by <a href="https://moizwaseem.me" target="_blank" class="text-primary hover:underline">Moiz Waseem</a>
+            </div>
+            <div class="flex space-x-4">
                 <a href="mailto:moizwaseemprofessional@yahoo.com" class="text-gray-400 hover:text-primary transition">
                     <i class="fa-solid fa-envelope text-xl"></i>
                 </a>
@@ -296,8 +306,17 @@
                     <i class="fa-brands fa-linkedin text-xl"></i>
                 </a>
             </div>
-            </div>
-        </footer>
+        </div>
+    </footer>
+
+    <div id="videoModal" class="fixed inset-0 bg-black/80 z-[110] hidden items-center justify-center backdrop-blur-sm transition-opacity opacity-0">
+        <div class="relative w-full max-w-4xl mx-4 bg-black rounded-xl overflow-hidden shadow-2xl scale-95 transition-transform" id="videoContainer">
+            <button id="btnCloseVideo" class="absolute top-4 right-4 text-white hover:text-red-500 z-10 bg-black/50 w-10 h-10 rounded-full flex items-center justify-center transition"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <video id="demoVideo" controls class="w-full h-auto max-h-[80vh] outline-none">
+                <source src="/assets/demo.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
     </div>
 
     <div id="toastContainer" class="fixed bottom-4 right-4 z-[100] flex flex-col gap-2 pointer-events-none"></div>
