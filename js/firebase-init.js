@@ -2,7 +2,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, updateProfile, updatePassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, collection, addDoc, query, where, getDocs, deleteDoc, doc, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyCVcGA1FO0XXU0Em_s6MLfU8nCx_n3pqvs",
   authDomain: "vaultflow-5c68b.firebaseapp.com",
@@ -61,11 +60,67 @@ const filterMethod = document.getElementById('filterMethod');
 const btnApplyFilter = document.getElementById('btnApplyFilter');
 const btnGeneratePDF = document.getElementById('btnGeneratePDF');
 
+const toastContainer = document.getElementById('toastContainer');
+const confirmModal = document.getElementById('confirmModal');
+const confirmMessageEl = document.getElementById('confirmMessage');
+const btnCancelConfirm = document.getElementById('btnCancelConfirm');
+const btnAcceptConfirm = document.getElementById('btnAcceptConfirm');
+const confirmBox = document.getElementById('confirmBox');
+
 let isLoginMode = true;
 let currentUser = null;
+let currentConfirmCallback = null;
 
 txDate.valueAsDate = new Date();
 document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+const showToast = (message, type = 'error') => {
+    const toast = document.createElement('div');
+    const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
+    const icon = type === 'success' ? 'fa-check-circle' : 'fa-circle-exclamation';
+
+    toast.className = `${bgColor} text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 transform transition-all duration-300 translate-y-10 opacity-0 pointer-events-auto`;
+    toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
+
+    toastContainer.appendChild(toast);
+
+    requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-10', 'opacity-0');
+    });
+
+    setTimeout(() => {
+        toast.classList.add('translate-y-10', 'opacity-0');
+        setTimeout(() => toast.remove(), 300);
+    }, 3500);
+};
+
+const showConfirm = (message, callback) => {
+    confirmMessageEl.textContent = message;
+    confirmModal.classList.remove('hidden');
+    confirmModal.classList.add('flex');
+    currentConfirmCallback = callback;
+    
+    requestAnimationFrame(() => {
+        confirmBox.classList.remove('scale-95');
+        confirmBox.classList.add('scale-100');
+    });
+};
+
+const closeConfirm = () => {
+    confirmBox.classList.remove('scale-100');
+    confirmBox.classList.add('scale-95');
+    setTimeout(() => {
+        confirmModal.classList.add('hidden');
+        confirmModal.classList.remove('flex');
+        currentConfirmCallback = null;
+    }, 150);
+};
+
+btnCancelConfirm.addEventListener('click', closeConfirm);
+btnAcceptConfirm.addEventListener('click', () => {
+    if (currentConfirmCallback) currentConfirmCallback();
+    closeConfirm();
+});
 
 const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
@@ -137,7 +192,7 @@ authForm.addEventListener('submit', async (e) => {
             currentUser = userCredential.user;
         }
     } catch (error) {
-        alert(error.message);
+        showToast(error.message.replace('Firebase: ', ''), 'error');
     }
 });
 
@@ -145,7 +200,7 @@ googleSignInBtn.addEventListener('click', async () => {
     try {
         await signInWithPopup(auth, googleProvider);
     } catch (error) {
-        alert(error.message);
+        showToast(error.message.replace('Firebase: ', ''), 'error');
     }
 });
 
@@ -181,9 +236,9 @@ btnUpdateName.addEventListener('click', async () => {
         try {
             await updateProfile(currentUser, { displayName: updateNameInput.value.trim() });
             navProfilePic.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(updateNameInput.value.trim())}&background=3b82f6&color=fff`;
-            alert('Profile name updated successfully.');
+            showToast('Profile name updated successfully!', 'success');
         } catch (error) {
-            alert(error.message);
+            showToast(error.message.replace('Firebase: ', ''), 'error');
         }
     }
 });
@@ -192,10 +247,10 @@ btnUpdatePassword.addEventListener('click', async () => {
     if (currentUser && updatePasswordInput.value.trim() !== '') {
         try {
             await updatePassword(currentUser, updatePasswordInput.value.trim());
-            alert('Password updated successfully.');
+            showToast('Password updated successfully!', 'success');
             updatePasswordInput.value = '';
         } catch (error) {
-            alert(error.message);
+            showToast(error.message.replace('Firebase: ', ''), 'error');
         }
     }
 });
@@ -279,19 +334,20 @@ const loadData = async () => {
         
         renderTable(data);
     } catch (error) {
-        console.error(error);
+        showToast('Error loading data: ' + error.message, 'error');
     }
 };
 
-window.handleDelete = async (id) => {
-    if (confirm('Delete this statement?')) {
+window.handleDelete = (id) => {
+    showConfirm('Are you sure you want to delete this statement? This cannot be undone.', async () => {
         try {
             await deleteDoc(doc(db, "statements", id));
             loadData();
+            showToast('Statement deleted successfully.', 'success');
         } catch (error) {
-            alert(error.message);
+            showToast('Error deleting statement.', 'error');
         }
-    }
+    });
 };
 
 transactionForm.addEventListener('submit', async (e) => {
@@ -314,8 +370,9 @@ transactionForm.addEventListener('submit', async (e) => {
         transactionForm.reset();
         txDate.valueAsDate = new Date();
         loadData();
+        showToast('Statement added successfully!', 'success');
     } catch (error) {
-        alert(error.message);
+        showToast(error.message.replace('Firebase: ', ''), 'error');
     }
 });
 
@@ -337,6 +394,11 @@ btnGeneratePDF.addEventListener('click', async () => {
         if (sDate) data = data.filter(d => d.date >= sDate);
         if (eDate) data = data.filter(d => d.date <= eDate);
         if (method !== 'all') data = data.filter(d => d.method === method);
+
+        if (data.length === 0) {
+            showToast('No statements found for the selected filters.', 'error');
+            return;
+        }
 
         let income = 0;
         let expense = 0;
@@ -396,7 +458,8 @@ btnGeneratePDF.addEventListener('click', async () => {
         });
         
         docObj.save(`VaultFlow_Statement_${new Date().getTime()}.pdf`);
+        showToast('PDF Exported Successfully!', 'success');
     } catch (error) {
-        alert(error.message);
+        showToast('Failed to generate PDF.', 'error');
     }
 });
