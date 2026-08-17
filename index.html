@@ -58,7 +58,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
 </head>
-<body class="bg-gray-50 text-gray-900 dark:bg-darkBg dark:text-gray-100 transition-colors duration-300 min-h-screen flex flex-col overflow-hidden">
+<body class="bg-gray-50 text-gray-900 dark:bg-darkBg dark:text-gray-100 transition-colors duration-300 min-h-screen flex flex-col">
 
     <div id="splashScreen" class="fixed inset-0 bg-white dark:bg-darkBg z-[100] flex items-center justify-center transition-opacity duration-1000 hidden opacity-100">
         
@@ -250,24 +250,24 @@
                 </div>
             </div>
 
-            <div id="profileUI" class="hidden max-w-2xl mx-auto bg-white dark:bg-darkCard p-8 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-                <div class="flex items-center gap-4 mb-8">
+            <div id="profileUI" class="hidden w-full max-w-2xl mx-auto bg-white dark:bg-darkCard p-5 sm:p-8 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 mt-2 sm:mt-0">
+                <div class="flex items-center gap-4 mb-6 sm:mb-8">
                     <button id="btnBackToDash" class="text-gray-500 hover:text-primary"><i class="fa-solid fa-arrow-left text-xl"></i></button>
-                    <h2 class="text-2xl font-bold">Profile Settings</h2>
+                    <h2 class="text-xl sm:text-2xl font-bold">Profile Settings</h2>
                 </div>
-                <div class="space-y-6">
+                <div class="space-y-6 sm:space-y-8">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Update Display Name</label>
-                        <div class="flex gap-2">
-                            <input type="text" id="updateNameInput" class="flex-grow px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-primary outline-none">
-                            <button id="btnUpdateName" class="px-4 py-2 bg-primary text-white rounded-lg font-medium hover:bg-blue-600 transition">Save</button>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Update Display Name</label>
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <input type="text" id="updateNameInput" class="flex-grow px-4 py-3 sm:py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-primary outline-none text-base">
+                            <button id="btnUpdateName" class="w-full sm:w-auto px-6 py-3 sm:py-2 bg-primary text-white rounded-lg font-medium hover:bg-blue-600 transition shadow-sm">Save</button>
                         </div>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Change Password</label>
-                        <div class="flex gap-2">
-                            <input type="password" id="updatePasswordInput" class="flex-grow px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-primary outline-none">
-                            <button id="btnUpdatePassword" class="px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg font-medium hover:opacity-90 transition">Update</button>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Change Password</label>
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <input type="password" id="updatePasswordInput" class="flex-grow px-4 py-3 sm:py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-primary outline-none text-base">
+                            <button id="btnUpdatePassword" class="w-full sm:w-auto px-6 py-3 sm:py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg font-medium hover:opacity-90 transition shadow-sm">Update</button>
                         </div>
                     </div>
                 </div>
