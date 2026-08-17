@@ -129,21 +129,29 @@ const formatCurrency = (amount) => {
 const triggerSplash = (name) => {
     authScreen.classList.add('hidden');
     appContainer.classList.add('hidden');
+    
     splashScreen.classList.remove('hidden');
+    splashScreen.classList.remove('opacity-0');
     
     splashText.textContent = `Hi, ${name}!`;
+    splashText.classList.remove('scale-110', 'opacity-100', 'animate-float');
+    splashText.classList.add('scale-95', 'opacity-0');
     
     setTimeout(() => {
-        splashText.classList.remove('scale-95');
-        splashText.classList.add('scale-110');
+        splashText.classList.remove('scale-95', 'opacity-0');
+        splashText.classList.add('scale-110', 'opacity-100', 'animate-float');
     }, 100);
 
     setTimeout(() => {
-        splashScreen.classList.add('hidden');
-        appContainer.classList.remove('hidden');
-        appContainer.classList.add('flex');
-        loadData();
-    }, 4500);
+        splashScreen.classList.add('opacity-0');
+        
+        setTimeout(() => {
+            splashScreen.classList.add('hidden');
+            appContainer.classList.remove('hidden');
+            appContainer.classList.add('flex');
+            loadData();
+        }, 1000); 
+    }, 3500); 
 };
 
 onAuthStateChanged(auth, (user) => {
