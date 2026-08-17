@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, updateProfile, updatePassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, updateProfile, updatePassword, sendPasswordResetEmail, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, collection, addDoc, query, where, getDocs, deleteDoc, doc, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -19,29 +19,37 @@ const googleProvider = new GoogleAuthProvider();
 
 const splashScreen = document.getElementById('splashScreen');
 const splashText = document.getElementById('splashText');
-const authScreen = document.getElementById('authScreen');
-const appContainer = document.getElementById('appContainer');
+const navLogoBtn = document.getElementById('navLogoBtn');
+const navLoginBtn = document.getElementById('navLoginBtn');
+const navProfileSection = document.getElementById('navProfileSection');
+const profileBtn = document.getElementById('profileBtn');
+const profileDropdown = document.getElementById('profileDropdown');
+const navProfilePic = document.getElementById('navProfilePic');
+const btnOpenDashboard = document.getElementById('btnOpenDashboard');
+const btnOpenProfilePage = document.getElementById('btnOpenProfilePage');
+const btnSignOut = document.getElementById('btnSignOut');
+
+const homeUI = document.getElementById('homeUI');
+const authUI = document.getElementById('authUI');
+const dashboardUI = document.getElementById('dashboardUI');
+const profileUI = document.getElementById('profileUI');
+
 const authForm = document.getElementById('authForm');
 const authName = document.getElementById('authName');
-const forgotPasswordContainer = document.getElementById('forgotPasswordContainer');
-const btnForgotPassword = document.getElementById('btnForgotPassword');
 const authEmail = document.getElementById('authEmail');
 const authPassword = document.getElementById('authPassword');
 const authSubmitBtn = document.getElementById('authSubmitBtn');
 const toggleAuthMode = document.getElementById('toggleAuthMode');
 const googleSignInBtn = document.getElementById('googleSignInBtn');
-const profileBtn = document.getElementById('profileBtn');
-const profileDropdown = document.getElementById('profileDropdown');
-const navProfilePic = document.getElementById('navProfilePic');
-const btnOpenProfilePage = document.getElementById('btnOpenProfilePage');
-const btnSignOut = document.getElementById('btnSignOut');
-const dashboardUI = document.getElementById('dashboardUI');
-const profileUI = document.getElementById('profileUI');
-const btnBackToDash = document.getElementById('btnBackToDash');
-const updateNameInput = document.getElementById('updateNameInput');
-const btnUpdateName = document.getElementById('btnUpdateName');
-const updatePasswordInput = document.getElementById('updatePasswordInput');
-const btnUpdatePassword = document.getElementById('btnUpdatePassword');
+const forgotPasswordContainer = document.getElementById('forgotPasswordContainer');
+const btnForgotPassword = document.getElementById('btnForgotPassword');
+
+const btnGetStarted = document.getElementById('btnGetStarted');
+const btnSeeHowItWorks = document.getElementById('btnSeeHowItWorks');
+const videoModal = document.getElementById('videoModal');
+const btnCloseVideo = document.getElementById('btnCloseVideo');
+const demoVideo = document.getElementById('demoVideo');
+const videoContainer = document.getElementById('videoContainer');
 
 const btnExpense = document.getElementById('btnExpense');
 const btnIncome = document.getElementById('btnIncome');
@@ -62,6 +70,12 @@ const filterMethod = document.getElementById('filterMethod');
 const btnApplyFilter = document.getElementById('btnApplyFilter');
 const btnGeneratePDF = document.getElementById('btnGeneratePDF');
 
+const btnBackToDash = document.getElementById('btnBackToDash');
+const updateNameInput = document.getElementById('updateNameInput');
+const btnUpdateName = document.getElementById('btnUpdateName');
+const updatePasswordInput = document.getElementById('updatePasswordInput');
+const btnUpdatePassword = document.getElementById('btnUpdatePassword');
+
 const toastContainer = document.getElementById('toastContainer');
 const confirmModal = document.getElementById('confirmModal');
 const confirmMessageEl = document.getElementById('confirmMessage');
@@ -72,24 +86,90 @@ const confirmBox = document.getElementById('confirmBox');
 let isLoginMode = true;
 let currentUser = null;
 let currentConfirmCallback = null;
+let initialLoadDone = false;
 
 txDate.valueAsDate = new Date();
 document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+let deferredPrompt;
+const installAppBtn = document.getElementById('installAppBtn');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if(installAppBtn) installAppBtn.classList.remove('hidden');
+});
+
+if(installAppBtn) {
+    installAppBtn.addEventListener('click', async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                deferredPrompt = null;
+                installAppBtn.classList.add('hidden');
+            }
+        }
+    });
+}
+
+const showView = (viewName) => {
+    [homeUI, authUI, dashboardUI, profileUI].forEach(el => el.classList.add('hidden'));
+    dashboardUI.classList.remove('grid'); 
+
+    if (viewName === 'home') {
+        homeUI.classList.remove('hidden');
+    } else if (viewName === 'auth') {
+        authUI.classList.remove('hidden');
+    } else if (viewName === 'dashboard') {
+        dashboardUI.classList.remove('hidden');
+        dashboardUI.classList.add('grid');
+        loadData();
+    } else if (viewName === 'profile') {
+        profileUI.classList.remove('hidden');
+    }
+};
+
+navLogoBtn.addEventListener('click', () => currentUser ? showView('dashboard') : showView('home'));
+navLoginBtn.addEventListener('click', () => showView('auth'));
+btnGetStarted.addEventListener('click', () => showView('auth'));
+btnOpenDashboard.addEventListener('click', () => { profileDropdown.classList.add('hidden'); showView('dashboard'); });
+btnOpenProfilePage.addEventListener('click', () => { profileDropdown.classList.add('hidden'); showView('profile'); });
+btnBackToDash.addEventListener('click', () => showView('dashboard'));
+
+btnSeeHowItWorks.addEventListener('click', () => {
+    videoModal.classList.remove('hidden');
+    videoModal.classList.add('flex');
+    requestAnimationFrame(() => {
+        videoModal.classList.remove('opacity-0');
+        videoContainer.classList.remove('scale-95');
+        videoContainer.classList.add('scale-100');
+    });
+    demoVideo.play();
+});
+
+const closeVideoModal = () => {
+    videoModal.classList.add('opacity-0');
+    videoContainer.classList.remove('scale-100');
+    videoContainer.classList.add('scale-95');
+    demoVideo.pause();
+    setTimeout(() => {
+        videoModal.classList.add('hidden');
+        videoModal.classList.remove('flex');
+    }, 300);
+};
+
+btnCloseVideo.addEventListener('click', closeVideoModal);
+videoModal.addEventListener('click', (e) => { if (e.target === videoModal) closeVideoModal(); });
 
 const showToast = (message, type = 'error') => {
     const toast = document.createElement('div');
     const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
     const icon = type === 'success' ? 'fa-check-circle' : 'fa-circle-exclamation';
-
     toast.className = `${bgColor} text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 transform transition-all duration-300 translate-y-10 opacity-0 pointer-events-auto`;
     toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
-
     toastContainer.appendChild(toast);
-
-    requestAnimationFrame(() => {
-        toast.classList.remove('translate-y-10', 'opacity-0');
-    });
-
+    requestAnimationFrame(() => toast.classList.remove('translate-y-10', 'opacity-0'));
     setTimeout(() => {
         toast.classList.add('translate-y-10', 'opacity-0');
         setTimeout(() => toast.remove(), 300);
@@ -101,7 +181,6 @@ const showConfirm = (message, callback) => {
     confirmModal.classList.remove('hidden');
     confirmModal.classList.add('flex');
     currentConfirmCallback = callback;
-    
     requestAnimationFrame(() => {
         confirmBox.classList.remove('scale-95');
         confirmBox.classList.add('scale-100');
@@ -119,22 +198,12 @@ const closeConfirm = () => {
 };
 
 btnCancelConfirm.addEventListener('click', closeConfirm);
-btnAcceptConfirm.addEventListener('click', () => {
-    if (currentConfirmCallback) currentConfirmCallback();
-    closeConfirm();
-});
+btnAcceptConfirm.addEventListener('click', () => { if (currentConfirmCallback) currentConfirmCallback(); closeConfirm(); });
 
-const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
-};
+const formatCurrency = (amount) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
 
 const triggerSplash = (name) => {
-    authScreen.classList.add('hidden');
-    appContainer.classList.add('hidden');
-    
-    splashScreen.classList.remove('hidden');
-    splashScreen.classList.remove('opacity-0');
-    
+    splashScreen.classList.remove('hidden', 'opacity-0');
     splashText.textContent = `Hi, ${name}!`;
     splashText.classList.remove('scale-110', 'opacity-100', 'animate-float');
     splashText.classList.add('scale-95', 'opacity-0');
@@ -146,29 +215,39 @@ const triggerSplash = (name) => {
 
     setTimeout(() => {
         splashScreen.classList.add('opacity-0');
-        
         setTimeout(() => {
             splashScreen.classList.add('hidden');
-            appContainer.classList.remove('hidden');
-            appContainer.classList.add('flex');
-            loadData();
+            showView('dashboard');
         }, 1000); 
     }, 3500); 
 };
 
 onAuthStateChanged(auth, (user) => {
-    if (user) {
+    if (user && (user.emailVerified || user.providerData.some(p => p.providerId === 'google.com'))) {
         currentUser = user;
         const displayName = user.displayName || 'User';
         navProfilePic.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=3b82f6&color=fff`;
         updateNameInput.value = displayName;
-        triggerSplash(displayName);
+        
+        navLoginBtn.classList.add('hidden');
+        navProfileSection.classList.remove('hidden');
+        
+        if (!initialLoadDone) {
+            triggerSplash(displayName);
+            initialLoadDone = true;
+        }
     } else {
         currentUser = null;
-        appContainer.classList.add('hidden');
-        appContainer.classList.remove('flex');
-        splashScreen.classList.add('hidden');
-        authScreen.classList.remove('hidden');
+        navLoginBtn.classList.remove('hidden');
+        navProfileSection.classList.add('hidden');
+        
+        if (!initialLoadDone) {
+            splashScreen.classList.add('hidden');
+            showView('home');
+            initialLoadDone = true;
+        } else {
+            showView('home');
+        }
     }
 });
 
@@ -189,35 +268,50 @@ toggleAuthMode.addEventListener('click', () => {
     }
 });
 
+authForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = authEmail.value.trim();
+    const password = authPassword.value;
+    const name = authName.value.trim();
+
+    try {
+        if (isLoginMode) {
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            if (!userCredential.user.emailVerified) {
+                await signOut(auth);
+                showToast('Please verify your email before signing in. Check your inbox.', 'error');
+                return;
+            }
+        } else {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            await updateProfile(userCredential.user, { displayName: name });
+            await sendEmailVerification(userCredential.user);
+            await signOut(auth); 
+            
+            showToast('Registration successful! Check your email to verify your account.', 'success');
+            
+            isLoginMode = true;
+            authName.classList.add('hidden');
+            authName.removeAttribute('required');
+            forgotPasswordContainer.classList.remove('hidden');
+            authSubmitBtn.textContent = 'Sign In';
+            toggleAuthMode.textContent = 'Need an account? Register here.';
+            authForm.reset();
+        }
+    } catch (error) {
+        showToast(error.message.replace('Firebase: ', ''), 'error');
+    }
+});
+
 btnForgotPassword.addEventListener('click', async () => {
     const email = authEmail.value.trim();
     if (!email) {
         showToast('Please enter your email address first.', 'error');
         return;
     }
-    
     try {
         await sendPasswordResetEmail(auth, email);
         showToast('Password reset link sent! Check your inbox.', 'success');
-    } catch (error) {
-        showToast(error.message.replace('Firebase: ', ''), 'error');
-    }
-});
-
-authForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = authEmail.value;
-    const password = authPassword.value;
-    const name = authName.value;
-
-    try {
-        if (isLoginMode) {
-            await signInWithEmailAndPassword(auth, email, password);
-        } else {
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            await updateProfile(userCredential.user, { displayName: name });
-            currentUser = userCredential.user;
-        }
     } catch (error) {
         showToast(error.message.replace('Firebase: ', ''), 'error');
     }
@@ -231,26 +325,11 @@ googleSignInBtn.addEventListener('click', async () => {
     }
 });
 
-profileBtn.addEventListener('click', () => {
-    profileDropdown.classList.toggle('hidden');
-});
-
+profileBtn.addEventListener('click', () => profileDropdown.classList.toggle('hidden'));
 document.addEventListener('click', (e) => {
     if (!profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
         profileDropdown.classList.add('hidden');
     }
-});
-
-btnOpenProfilePage.addEventListener('click', () => {
-    profileDropdown.classList.add('hidden');
-    dashboardUI.classList.add('hidden');
-    profileUI.classList.remove('hidden');
-});
-
-btnBackToDash.addEventListener('click', () => {
-    profileUI.classList.add('hidden');
-    dashboardUI.classList.remove('hidden');
-    dashboardUI.classList.add('grid');
 });
 
 btnSignOut.addEventListener('click', async () => {
@@ -296,7 +375,6 @@ btnIncome.addEventListener('click', () => {
 
 const renderTable = (data) => {
     statementsList.innerHTML = '';
-    
     data.forEach(item => {
         const tr = document.createElement('tr');
         const typeColor = item.type === 'income' ? 'text-green-500' : 'text-red-500';
@@ -327,15 +405,11 @@ const renderTable = (data) => {
 
 const loadData = async () => {
     if (!currentUser) return;
-    
     try {
         const q = query(collection(db, "statements"), where("userId", "==", currentUser.uid), orderBy("timestamp", "desc"));
         const querySnapshot = await getDocs(q);
         let data = [];
-        
-        querySnapshot.forEach((doc) => {
-            data.push({ id: doc.id, ...doc.data() });
-        });
+        querySnapshot.forEach((doc) => data.push({ id: doc.id, ...doc.data() }));
 
         const sDate = filterStart.value;
         const eDate = filterEnd.value;
@@ -345,20 +419,12 @@ const loadData = async () => {
         if (eDate) data = data.filter(d => d.date <= eDate);
         if (method !== 'all') data = data.filter(d => d.method === method);
         
-        let income = 0;
-        let expense = 0;
-        
-        data.forEach(item => {
-            if (item.type === 'income') income += parseFloat(item.amount);
-            else expense += parseFloat(item.amount);
-        });
-        
-        const balance = income - expense;
+        let income = 0; let expense = 0;
+        data.forEach(item => item.type === 'income' ? income += parseFloat(item.amount) : expense += parseFloat(item.amount));
         
         totalIncomeEl.textContent = formatCurrency(income);
         totalExpenseEl.textContent = formatCurrency(expense);
-        totalBalanceEl.textContent = formatCurrency(balance);
-        
+        totalBalanceEl.textContent = formatCurrency(income - expense);
         renderTable(data);
     } catch (error) {
         showToast('Error loading data: ' + error.message, 'error');
@@ -391,7 +457,6 @@ transactionForm.addEventListener('submit', async (e) => {
         proof: txProof.value,
         timestamp: new Date().getTime()
     };
-    
     try {
         await addDoc(collection(db, "statements"), statement);
         transactionForm.reset();
@@ -407,32 +472,21 @@ btnApplyFilter.addEventListener('click', loadData);
 
 btnGeneratePDF.addEventListener('click', async () => {
     if (!currentUser) return;
-
     try {
         const q = query(collection(db, "statements"), where("userId", "==", currentUser.uid), orderBy("timestamp", "desc"));
         const querySnapshot = await getDocs(q);
         let data = [];
         querySnapshot.forEach((doc) => data.push({ id: doc.id, ...doc.data() }));
 
-        const sDate = filterStart.value;
-        const eDate = filterEnd.value;
-        const method = filterMethod.value;
-        
+        const sDate = filterStart.value; const eDate = filterEnd.value; const method = filterMethod.value;
         if (sDate) data = data.filter(d => d.date >= sDate);
         if (eDate) data = data.filter(d => d.date <= eDate);
         if (method !== 'all') data = data.filter(d => d.method === method);
 
-        if (data.length === 0) {
-            showToast('No statements found for the selected filters.', 'error');
-            return;
-        }
+        if (data.length === 0) { showToast('No statements found for the selected filters.', 'error'); return; }
 
-        let income = 0;
-        let expense = 0;
-        data.forEach(item => {
-            if (item.type === 'income') income += parseFloat(item.amount);
-            else expense += parseFloat(item.amount);
-        });
+        let income = 0; let expense = 0;
+        data.forEach(item => item.type === 'income' ? income += parseFloat(item.amount) : expense += parseFloat(item.amount));
         const balance = income - expense;
 
         const { jsPDF } = window.jspdf;
@@ -441,15 +495,12 @@ btnGeneratePDF.addEventListener('click', async () => {
         docObj.setFontSize(22);
         docObj.setTextColor(15, 23, 42);
         docObj.text('VaultFlow Account Statement', 14, 22);
-        
         docObj.setFontSize(10);
         docObj.setTextColor(100, 116, 139);
         docObj.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
         docObj.text(`Account: ${currentUser.displayName || currentUser.email}`, 14, 36);
-        
         docObj.setDrawColor(226, 232, 240);
         docObj.line(14, 42, 196, 42);
-        
         docObj.setFontSize(11);
         docObj.setTextColor(34, 197, 94);
         docObj.text(`Total Income: +${formatCurrency(income)}`, 14, 50);
@@ -460,11 +511,8 @@ btnGeneratePDF.addEventListener('click', async () => {
         docObj.text(`Closing Balance: ${formatCurrency(balance)}`, 140, 50);
         
         const tableData = data.map(item => [
-            item.date,
-            item.method.charAt(0).toUpperCase() + item.method.slice(1),
-            item.reason || '-',
-            item.type === 'income' ? '(+)' : '(-)',
-            formatCurrency(item.amount)
+            item.date, item.method.charAt(0).toUpperCase() + item.method.slice(1), item.reason || '-',
+            item.type === 'income' ? '(+)' : '(-)', formatCurrency(item.amount)
         ]);
         
         docObj.autoTable({
@@ -475,15 +523,10 @@ btnGeneratePDF.addEventListener('click', async () => {
             headStyles: { fillColor: [59, 130, 246] },
             didParseCell: function(data) {
                 if (data.section === 'body' && (data.column.index === 3 || data.column.index === 4)) {
-                    if (data.row.raw[3] === '(+)') {
-                        data.cell.styles.textColor = [34, 197, 94];
-                    } else {
-                        data.cell.styles.textColor = [239, 68, 68];
-                    }
+                    data.cell.styles.textColor = data.row.raw[3] === '(+)' ? [34, 197, 94] : [239, 68, 68];
                 }
             }
         });
-        
         docObj.save(`VaultFlow_Statement_${new Date().getTime()}.pdf`);
         showToast('PDF Exported Successfully!', 'success');
     } catch (error) {
