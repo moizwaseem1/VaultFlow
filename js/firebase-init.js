@@ -19,8 +19,6 @@ const googleProvider = new GoogleAuthProvider();
 
 const splashScreen = document.getElementById('splashScreen');
 const splashText = document.getElementById('splashText');
-const navLogoBtn = document.getElementById('navLogoBtn');
-const navLoginBtn = document.getElementById('navLoginBtn');
 const navProfileSection = document.getElementById('navProfileSection');
 const profileBtn = document.getElementById('profileBtn');
 const profileDropdown = document.getElementById('profileDropdown');
@@ -29,7 +27,6 @@ const btnOpenDashboard = document.getElementById('btnOpenDashboard');
 const btnOpenProfilePage = document.getElementById('btnOpenProfilePage');
 const btnSignOut = document.getElementById('btnSignOut');
 
-const homeUI = document.getElementById('homeUI');
 const authUI = document.getElementById('authUI');
 const dashboardUI = document.getElementById('dashboardUI');
 const profileUI = document.getElementById('profileUI');
@@ -43,10 +40,6 @@ const toggleAuthMode = document.getElementById('toggleAuthMode');
 const googleSignInBtn = document.getElementById('googleSignInBtn');
 const forgotPasswordContainer = document.getElementById('forgotPasswordContainer');
 const btnForgotPassword = document.getElementById('btnForgotPassword');
-
-const btnGetStarted = document.getElementById('btnGetStarted');
-const bottomInstallBanner = document.getElementById('bottomInstallBanner');
-const btnBottomInstall = document.getElementById('btnBottomInstall');
 
 const btnExpense = document.getElementById('btnExpense');
 const btnIncome = document.getElementById('btnIncome');
@@ -80,13 +73,18 @@ const btnCancelConfirm = document.getElementById('btnCancelConfirm');
 const btnAcceptConfirm = document.getElementById('btnAcceptConfirm');
 const confirmBox = document.getElementById('confirmBox');
 
+const bottomInstallBanner = document.getElementById('bottomInstallBanner');
+const btnBottomInstall = document.getElementById('btnBottomInstall');
+
 let isLoginMode = true;
 let currentUser = null;
 let currentConfirmCallback = null;
 let initialLoadDone = false;
 
-txDate.valueAsDate = new Date();
-document.getElementById('currentYear').textContent = new Date().getFullYear();
+const isVaultPage = window.location.pathname.includes('vault.html');
+
+if(txDate) txDate.valueAsDate = new Date();
+if(document.getElementById('currentYear')) document.getElementById('currentYear').textContent = new Date().getFullYear();
 
 let deferredPrompt;
 const installAppBtn = document.getElementById('installAppBtn');
@@ -114,30 +112,30 @@ if(installAppBtn) installAppBtn.addEventListener('click', triggerInstall);
 if(btnBottomInstall) btnBottomInstall.addEventListener('click', triggerInstall);
 
 const showView = (viewName) => {
-    [homeUI, authUI, dashboardUI, profileUI].forEach(el => el.classList.add('hidden'));
-    dashboardUI.classList.remove('grid'); 
+    if(authUI) authUI.classList.add('hidden');
+    if(dashboardUI) {
+        dashboardUI.classList.add('hidden');
+        dashboardUI.classList.remove('grid');
+    }
+    if(profileUI) profileUI.classList.add('hidden');
 
-    if (viewName === 'home') {
-        homeUI.classList.remove('hidden');
-    } else if (viewName === 'auth') {
+    if (viewName === 'auth' && authUI) {
         authUI.classList.remove('hidden');
-    } else if (viewName === 'dashboard') {
+    } else if (viewName === 'dashboard' && dashboardUI) {
         dashboardUI.classList.remove('hidden');
         dashboardUI.classList.add('grid');
         loadData();
-    } else if (viewName === 'profile') {
+    } else if (viewName === 'profile' && profileUI) {
         profileUI.classList.remove('hidden');
     }
 };
 
-navLogoBtn.addEventListener('click', () => currentUser ? showView('dashboard') : showView('home'));
-navLoginBtn.addEventListener('click', () => showView('auth'));
-btnGetStarted.addEventListener('click', () => showView('auth'));
-btnOpenDashboard.addEventListener('click', () => { profileDropdown.classList.add('hidden'); showView('dashboard'); });
-btnOpenProfilePage.addEventListener('click', () => { profileDropdown.classList.add('hidden'); showView('profile'); });
-btnBackToDash.addEventListener('click', () => showView('dashboard'));
+if(btnOpenDashboard) btnOpenDashboard.addEventListener('click', () => { profileDropdown.classList.add('hidden'); showView('dashboard'); });
+if(btnOpenProfilePage) btnOpenProfilePage.addEventListener('click', () => { profileDropdown.classList.add('hidden'); showView('profile'); });
+if(btnBackToDash) btnBackToDash.addEventListener('click', () => showView('dashboard'));
 
 const showToast = (message, type = 'error') => {
+    if(!toastContainer) return;
     const toast = document.createElement('div');
     const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
     const icon = type === 'success' ? 'fa-check-circle' : 'fa-circle-exclamation';
@@ -152,6 +150,7 @@ const showToast = (message, type = 'error') => {
 };
 
 const showConfirm = (message, callback) => {
+    if(!confirmModal) return;
     confirmMessageEl.textContent = message;
     confirmModal.classList.remove('hidden');
     confirmModal.classList.add('flex');
@@ -163,6 +162,7 @@ const showConfirm = (message, callback) => {
 };
 
 const closeConfirm = () => {
+    if(!confirmBox) return;
     confirmBox.classList.remove('scale-100');
     confirmBox.classList.add('scale-95');
     setTimeout(() => {
@@ -172,12 +172,13 @@ const closeConfirm = () => {
     }, 150);
 };
 
-btnCancelConfirm.addEventListener('click', closeConfirm);
-btnAcceptConfirm.addEventListener('click', () => { if (currentConfirmCallback) currentConfirmCallback(); closeConfirm(); });
+if(btnCancelConfirm) btnCancelConfirm.addEventListener('click', closeConfirm);
+if(btnAcceptConfirm) btnAcceptConfirm.addEventListener('click', () => { if (currentConfirmCallback) currentConfirmCallback(); closeConfirm(); });
 
 const formatCurrency = (amount) => new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(amount);
 
 const triggerSplash = (name) => {
+    if(!splashScreen) return;
     splashScreen.classList.remove('hidden', 'opacity-0');
     splashText.textContent = `Hi, ${name}!`;
     splashText.classList.remove('scale-110', 'opacity-100', 'animate-float');
@@ -201,154 +202,181 @@ onAuthStateChanged(auth, (user) => {
     if (user && (user.emailVerified || user.providerData.some(p => p.providerId === 'google.com'))) {
         currentUser = user;
         const displayName = user.displayName || 'User';
-        navProfilePic.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=3b82f6&color=fff`;
-        updateNameInput.value = displayName;
         
-        navLoginBtn.classList.add('hidden');
-        navProfileSection.classList.remove('hidden');
+        if(navProfilePic) navProfilePic.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=3b82f6&color=fff`;
+        if(updateNameInput) updateNameInput.value = displayName;
         
-        if (!initialLoadDone) {
-            triggerSplash(displayName);
-            initialLoadDone = true;
+        const navLoginBtn = document.getElementById('navLoginBtn');
+        if(navLoginBtn) navLoginBtn.classList.add('hidden');
+        if(navProfileSection) navProfileSection.classList.remove('hidden');
+        
+        if(isVaultPage) {
+            if (!initialLoadDone) {
+                triggerSplash(displayName);
+                initialLoadDone = true;
+            } else {
+                showView('dashboard');
+            }
         }
     } else {
         currentUser = null;
-        navLoginBtn.classList.remove('hidden');
-        navProfileSection.classList.add('hidden');
+        const navLoginBtn = document.getElementById('navLoginBtn');
+        if(navLoginBtn) navLoginBtn.classList.remove('hidden');
+        if(navProfileSection) navProfileSection.classList.add('hidden');
         
-        if (!initialLoadDone) {
-            splashScreen.classList.add('hidden');
-            showView('home');
+        if(isVaultPage) {
+            if(splashScreen) splashScreen.classList.add('hidden');
+            showView('auth');
             initialLoadDone = true;
-        } else {
-            showView('home');
         }
     }
 });
 
-toggleAuthMode.addEventListener('click', () => {
-    isLoginMode = !isLoginMode;
-    if (isLoginMode) {
-        authName.classList.add('hidden');
-        authName.removeAttribute('required');
-        forgotPasswordContainer.classList.remove('hidden');
-        authSubmitBtn.textContent = 'Sign In';
-        toggleAuthMode.textContent = 'Need an account? Register here.';
-    } else {
-        authName.classList.remove('hidden');
-        authName.setAttribute('required', 'true');
-        forgotPasswordContainer.classList.add('hidden');
-        authSubmitBtn.textContent = 'Register';
-        toggleAuthMode.textContent = 'Already have an account? Sign in.';
-    }
-});
-
-authForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = authEmail.value.trim();
-    const password = authPassword.value;
-    const name = authName.value.trim();
-
-    try {
+if(toggleAuthMode) {
+    toggleAuthMode.addEventListener('click', () => {
+        isLoginMode = !isLoginMode;
         if (isLoginMode) {
-            const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            if (!userCredential.user.emailVerified) {
-                await signOut(auth);
-                showToast('Please verify your email before signing in. Check your inbox.', 'error');
-                return;
-            }
-        } else {
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            await updateProfile(userCredential.user, { displayName: name });
-            await sendEmailVerification(userCredential.user);
-            await signOut(auth); 
-            
-            showToast('Registration successful! Check your email to verify your account.', 'success');
-            
-            isLoginMode = true;
             authName.classList.add('hidden');
             authName.removeAttribute('required');
             forgotPasswordContainer.classList.remove('hidden');
             authSubmitBtn.textContent = 'Sign In';
             toggleAuthMode.textContent = 'Need an account? Register here.';
-            authForm.reset();
+        } else {
+            authName.classList.remove('hidden');
+            authName.setAttribute('required', 'true');
+            forgotPasswordContainer.classList.add('hidden');
+            authSubmitBtn.textContent = 'Register';
+            toggleAuthMode.textContent = 'Already have an account? Sign in.';
         }
-    } catch (error) {
-        showToast(error.message.replace('Firebase: ', ''), 'error');
-    }
-});
+    });
+}
 
-btnForgotPassword.addEventListener('click', async () => {
-    const email = authEmail.value.trim();
-    if (!email) {
-        showToast('Please enter your email address first.', 'error');
-        return;
-    }
-    try {
-        await sendPasswordResetEmail(auth, email);
-        showToast('Password reset link sent! Check your inbox.', 'success');
-    } catch (error) {
-        showToast(error.message.replace('Firebase: ', ''), 'error');
-    }
-});
+if(authForm) {
+    authForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = authEmail.value.trim();
+        const password = authPassword.value;
+        const name = authName.value.trim();
 
-googleSignInBtn.addEventListener('click', async () => {
-    try {
-        await signInWithPopup(auth, googleProvider);
-    } catch (error) {
-        showToast(error.message.replace('Firebase: ', ''), 'error');
-    }
-});
+        try {
+            if (isLoginMode) {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                if (!userCredential.user.emailVerified) {
+                    await signOut(auth);
+                    showToast('Please verify your email before signing in. Check your inbox.', 'error');
+                    return;
+                }
+            } else {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                await updateProfile(userCredential.user, { displayName: name });
+                await sendEmailVerification(userCredential.user);
+                await signOut(auth); 
+                
+                showToast('Registration successful! Check your email to verify your account.', 'success');
+                
+                isLoginMode = true;
+                authName.classList.add('hidden');
+                authName.removeAttribute('required');
+                forgotPasswordContainer.classList.remove('hidden');
+                authSubmitBtn.textContent = 'Sign In';
+                toggleAuthMode.textContent = 'Need an account? Register here.';
+                authForm.reset();
+            }
+        } catch (error) {
+            showToast(error.message.replace('Firebase: ', ''), 'error');
+        }
+    });
+}
 
-profileBtn.addEventListener('click', () => profileDropdown.classList.toggle('hidden'));
-document.addEventListener('click', (e) => {
-    if (!profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
+if(btnForgotPassword) {
+    btnForgotPassword.addEventListener('click', async () => {
+        const email = authEmail.value.trim();
+        if (!email) {
+            showToast('Please enter your email address first.', 'error');
+            return;
+        }
+        try {
+            await sendPasswordResetEmail(auth, email);
+            showToast('Password reset link sent! Check your inbox.', 'success');
+        } catch (error) {
+            showToast(error.message.replace('Firebase: ', ''), 'error');
+        }
+    });
+}
+
+if(googleSignInBtn) {
+    googleSignInBtn.addEventListener('click', async () => {
+        try {
+            await signInWithPopup(auth, googleProvider);
+        } catch (error) {
+            showToast(error.message.replace('Firebase: ', ''), 'error');
+        }
+    });
+}
+
+if(profileBtn) {
+    profileBtn.addEventListener('click', () => profileDropdown.classList.toggle('hidden'));
+    document.addEventListener('click', (e) => {
+        if (!profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
+            profileDropdown.classList.add('hidden');
+        }
+    });
+}
+
+if(btnSignOut) {
+    btnSignOut.addEventListener('click', async () => {
         profileDropdown.classList.add('hidden');
-    }
-});
+        await signOut(auth);
+        if(isVaultPage) window.location.href = '/';
+    });
+}
 
-btnSignOut.addEventListener('click', async () => {
-    profileDropdown.classList.add('hidden');
-    await signOut(auth);
-});
-
-btnUpdateName.addEventListener('click', async () => {
-    if (currentUser && updateNameInput.value.trim() !== '') {
-        try {
-            await updateProfile(currentUser, { displayName: updateNameInput.value.trim() });
-            navProfilePic.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(updateNameInput.value.trim())}&background=3b82f6&color=fff`;
-            showToast('Profile name updated successfully!', 'success');
-        } catch (error) {
-            showToast(error.message.replace('Firebase: ', ''), 'error');
+if(btnUpdateName) {
+    btnUpdateName.addEventListener('click', async () => {
+        if (currentUser && updateNameInput.value.trim() !== '') {
+            try {
+                await updateProfile(currentUser, { displayName: updateNameInput.value.trim() });
+                navProfilePic.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(updateNameInput.value.trim())}&background=3b82f6&color=fff`;
+                showToast('Profile name updated successfully!', 'success');
+            } catch (error) {
+                showToast(error.message.replace('Firebase: ', ''), 'error');
+            }
         }
-    }
-});
+    });
+}
 
-btnUpdatePassword.addEventListener('click', async () => {
-    if (currentUser && updatePasswordInput.value.trim() !== '') {
-        try {
-            await updatePassword(currentUser, updatePasswordInput.value.trim());
-            showToast('Password updated successfully!', 'success');
-            updatePasswordInput.value = '';
-        } catch (error) {
-            showToast(error.message.replace('Firebase: ', ''), 'error');
+if(btnUpdatePassword) {
+    btnUpdatePassword.addEventListener('click', async () => {
+        if (currentUser && updatePasswordInput.value.trim() !== '') {
+            try {
+                await updatePassword(currentUser, updatePasswordInput.value.trim());
+                showToast('Password updated successfully!', 'success');
+                updatePasswordInput.value = '';
+            } catch (error) {
+                showToast(error.message.replace('Firebase: ', ''), 'error');
+            }
         }
-    }
-});
+    });
+}
 
-btnExpense.addEventListener('click', () => {
-    txType.value = 'expense';
-    btnExpense.className = 'w-full py-2 bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 rounded-lg font-medium border-2 border-red-500 transition-all';
-    btnIncome.className = 'w-full py-2 bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 rounded-lg font-medium border-2 border-transparent transition-all';
-});
+if(btnExpense) {
+    btnExpense.addEventListener('click', () => {
+        txType.value = 'expense';
+        btnExpense.className = 'w-full py-2 bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 rounded-lg font-medium border-2 border-red-500 transition-all';
+        btnIncome.className = 'w-full py-2 bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 rounded-lg font-medium border-2 border-transparent transition-all';
+    });
+}
 
-btnIncome.addEventListener('click', () => {
-    txType.value = 'income';
-    btnIncome.className = 'w-full py-2 bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400 rounded-lg font-medium border-2 border-green-500 transition-all';
-    btnExpense.className = 'w-full py-2 bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 rounded-lg font-medium border-2 border-transparent transition-all';
-});
+if(btnIncome) {
+    btnIncome.addEventListener('click', () => {
+        txType.value = 'income';
+        btnIncome.className = 'w-full py-2 bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400 rounded-lg font-medium border-2 border-green-500 transition-all';
+        btnExpense.className = 'w-full py-2 bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400 rounded-lg font-medium border-2 border-transparent transition-all';
+    });
+}
 
 const renderTable = (data) => {
+    if(!statementsList) return;
     statementsList.innerHTML = '';
     data.forEach(item => {
         const tr = document.createElement('tr');
@@ -379,7 +407,7 @@ const renderTable = (data) => {
 };
 
 const loadData = async () => {
-    if (!currentUser) return;
+    if (!currentUser || !dashboardUI) return;
     try {
         const q = query(collection(db, "statements"), where("userId", "==", currentUser.uid), orderBy("timestamp", "desc"));
         const querySnapshot = await getDocs(q);
@@ -418,93 +446,97 @@ window.handleDelete = (id) => {
     });
 };
 
-transactionForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    if (!currentUser) return;
+if(transactionForm) {
+    transactionForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!currentUser) return;
 
-    const statement = {
-        userId: currentUser.uid,
-        type: txType.value,
-        amount: parseFloat(txAmount.value),
-        method: txMethod.value,
-        date: txDate.value,
-        reason: txReason.value,
-        proof: txProof.value,
-        timestamp: new Date().getTime()
-    };
-    try {
-        await addDoc(collection(db, "statements"), statement);
-        transactionForm.reset();
-        txDate.valueAsDate = new Date();
-        loadData();
-        showToast('Statement added successfully!', 'success');
-    } catch (error) {
-        showToast(error.message.replace('Firebase: ', ''), 'error');
-    }
-});
+        const statement = {
+            userId: currentUser.uid,
+            type: txType.value,
+            amount: parseFloat(txAmount.value),
+            method: txMethod.value,
+            date: txDate.value,
+            reason: txReason.value,
+            proof: txProof.value,
+            timestamp: new Date().getTime()
+        };
+        try {
+            await addDoc(collection(db, "statements"), statement);
+            transactionForm.reset();
+            txDate.valueAsDate = new Date();
+            loadData();
+            showToast('Statement added successfully!', 'success');
+        } catch (error) {
+            showToast(error.message.replace('Firebase: ', ''), 'error');
+        }
+    });
+}
 
-btnApplyFilter.addEventListener('click', loadData);
+if(btnApplyFilter) btnApplyFilter.addEventListener('click', loadData);
 
-btnGeneratePDF.addEventListener('click', async () => {
-    if (!currentUser) return;
-    try {
-        const q = query(collection(db, "statements"), where("userId", "==", currentUser.uid), orderBy("timestamp", "desc"));
-        const querySnapshot = await getDocs(q);
-        let data = [];
-        querySnapshot.forEach((doc) => data.push({ id: doc.id, ...doc.data() }));
+if(btnGeneratePDF) {
+    btnGeneratePDF.addEventListener('click', async () => {
+        if (!currentUser) return;
+        try {
+            const q = query(collection(db, "statements"), where("userId", "==", currentUser.uid), orderBy("timestamp", "desc"));
+            const querySnapshot = await getDocs(q);
+            let data = [];
+            querySnapshot.forEach((doc) => data.push({ id: doc.id, ...doc.data() }));
 
-        const sDate = filterStart.value; const eDate = filterEnd.value; const method = filterMethod.value;
-        if (sDate) data = data.filter(d => d.date >= sDate);
-        if (eDate) data = data.filter(d => d.date <= eDate);
-        if (method !== 'all') data = data.filter(d => d.method === method);
+            const sDate = filterStart.value; const eDate = filterEnd.value; const method = filterMethod.value;
+            if (sDate) data = data.filter(d => d.date >= sDate);
+            if (eDate) data = data.filter(d => d.date <= eDate);
+            if (method !== 'all') data = data.filter(d => d.method === method);
 
-        if (data.length === 0) { showToast('No statements found for the selected filters.', 'error'); return; }
+            if (data.length === 0) { showToast('No statements found for the selected filters.', 'error'); return; }
 
-        let income = 0; let expense = 0;
-        data.forEach(item => item.type === 'income' ? income += parseFloat(item.amount) : expense += parseFloat(item.amount));
-        const balance = income - expense;
+            let income = 0; let expense = 0;
+            data.forEach(item => item.type === 'income' ? income += parseFloat(item.amount) : expense += parseFloat(item.amount));
+            const balance = income - expense;
 
-        const { jsPDF } = window.jspdf;
-        const docObj = new jsPDF();
-        
-        docObj.setFontSize(22);
-        docObj.setTextColor(15, 23, 42);
-        docObj.text('VaultFlow Account Statement', 14, 22);
-        docObj.setFontSize(10);
-        docObj.setTextColor(100, 116, 139);
-        docObj.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
-        docObj.text(`Account: ${currentUser.displayName || currentUser.email}`, 14, 36);
-        docObj.setDrawColor(226, 232, 240);
-        docObj.line(14, 42, 196, 42);
-        docObj.setFontSize(11);
-        docObj.setTextColor(34, 197, 94);
-        docObj.text(`Total Income: +${formatCurrency(income)}`, 14, 50);
-        docObj.setTextColor(239, 68, 68);
-        docObj.text(`Total Expense: -${formatCurrency(expense)}`, 75, 50);
-        docObj.setFont(undefined, 'bold');
-        docObj.setTextColor(15, 23, 42);
-        docObj.text(`Closing Balance: ${formatCurrency(balance)}`, 140, 50);
-        
-        const tableData = data.map(item => [
-            item.date, item.method.charAt(0).toUpperCase() + item.method.slice(1), item.reason || '-',
-            item.type === 'income' ? '(+)' : '(-)', formatCurrency(item.amount)
-        ]);
-        
-        docObj.autoTable({
-            startY: 58,
-            head: [['Date', 'Method', 'Reason', 'Type', 'Amount']],
-            body: tableData,
-            theme: 'striped',
-            headStyles: { fillColor: [59, 130, 246] },
-            didParseCell: function(data) {
-                if (data.section === 'body' && (data.column.index === 3 || data.column.index === 4)) {
-                    data.cell.styles.textColor = data.row.raw[3] === '(+)' ? [34, 197, 94] : [239, 68, 68];
+            const { jsPDF } = window.jspdf;
+            const docObj = new jsPDF();
+            
+            docObj.setFontSize(22);
+            docObj.setTextColor(15, 23, 42);
+            docObj.text('VaultFlow Account Statement', 14, 22);
+            docObj.setFontSize(10);
+            docObj.setTextColor(100, 116, 139);
+            docObj.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
+            docObj.text(`Account: ${currentUser.displayName || currentUser.email}`, 14, 36);
+            docObj.setDrawColor(226, 232, 240);
+            docObj.line(14, 42, 196, 42);
+            docObj.setFontSize(11);
+            docObj.setTextColor(34, 197, 94);
+            docObj.text(`Total Income: +${formatCurrency(income)}`, 14, 50);
+            docObj.setTextColor(239, 68, 68);
+            docObj.text(`Total Expense: -${formatCurrency(expense)}`, 75, 50);
+            docObj.setFont(undefined, 'bold');
+            docObj.setTextColor(15, 23, 42);
+            docObj.text(`Closing Balance: ${formatCurrency(balance)}`, 140, 50);
+            
+            const tableData = data.map(item => [
+                item.date, item.method.charAt(0).toUpperCase() + item.method.slice(1), item.reason || '-',
+                item.type === 'income' ? '(+)' : '(-)', formatCurrency(item.amount)
+            ]);
+            
+            docObj.autoTable({
+                startY: 58,
+                head: [['Date', 'Method', 'Reason', 'Type', 'Amount']],
+                body: tableData,
+                theme: 'striped',
+                headStyles: { fillColor: [59, 130, 246] },
+                didParseCell: function(data) {
+                    if (data.section === 'body' && (data.column.index === 3 || data.column.index === 4)) {
+                        data.cell.styles.textColor = data.row.raw[3] === '(+)' ? [34, 197, 94] : [239, 68, 68];
+                    }
                 }
-            }
-        });
-        docObj.save(`VaultFlow_Statement_${new Date().getTime()}.pdf`);
-        showToast('PDF Exported Successfully!', 'success');
-    } catch (error) {
-        showToast('Failed to generate PDF.', 'error');
-    }
-});
+            });
+            docObj.save(`VaultFlow_Statement_${new Date().getTime()}.pdf`);
+            showToast('PDF Exported Successfully!', 'success');
+        } catch (error) {
+            showToast('Failed to generate PDF.', 'error');
+        }
+    });
+}
