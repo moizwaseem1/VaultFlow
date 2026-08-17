@@ -23,6 +23,8 @@ const authScreen = document.getElementById('authScreen');
 const appContainer = document.getElementById('appContainer');
 const authForm = document.getElementById('authForm');
 const authName = document.getElementById('authName');
+const forgotPasswordContainer = document.getElementById('forgotPasswordContainer');
+const btnForgotPassword = document.getElementById('btnForgotPassword');
 const authEmail = document.getElementById('authEmail');
 const authPassword = document.getElementById('authPassword');
 const authSubmitBtn = document.getElementById('authSubmitBtn');
@@ -175,13 +177,30 @@ toggleAuthMode.addEventListener('click', () => {
     if (isLoginMode) {
         authName.classList.add('hidden');
         authName.removeAttribute('required');
+        forgotPasswordContainer.classList.remove('hidden');
         authSubmitBtn.textContent = 'Sign In';
         toggleAuthMode.textContent = 'Need an account? Register here.';
     } else {
         authName.classList.remove('hidden');
         authName.setAttribute('required', 'true');
+        forgotPasswordContainer.classList.add('hidden');
         authSubmitBtn.textContent = 'Register';
         toggleAuthMode.textContent = 'Already have an account? Sign in.';
+    }
+});
+
+btnForgotPassword.addEventListener('click', async () => {
+    const email = authEmail.value.trim();
+    if (!email) {
+        showToast('Please enter your email address first.', 'error');
+        return;
+    }
+    
+    try {
+        await sendPasswordResetEmail(auth, email);
+        showToast('Password reset link sent! Check your inbox.', 'success');
+    } catch (error) {
+        showToast(error.message.replace('Firebase: ', ''), 'error');
     }
 });
 
