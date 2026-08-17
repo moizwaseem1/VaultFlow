@@ -254,7 +254,7 @@ btnGeneratePDF.addEventListener('click', async () => {
     // 6. Save the file
     const safeStartDate = sDate || 'start';
     const safeEndDate = eDate || 'end';
-    doc.save(`VaultFlow_Statement_${safeStartDate}_to_${safeEndDate}.pdf`);
+    doc.save(`VaultFlow Statement ${safeStartDate} to ${safeEndDate}.pdf`);
 });
 
 let deferredPrompt;
