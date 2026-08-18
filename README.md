@@ -1,1 +1,1 @@
-# VaultFlow
+A secure, cloud-synced expense tracker that allows users to instantly log transactions, manage their personal finances, and export professional PDF statements. Built as a lightweight Progressive Web App, it combines lightning-fast performance with strict data privacy for a seamless, cross-device experience.
