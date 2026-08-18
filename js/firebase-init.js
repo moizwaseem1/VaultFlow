@@ -82,7 +82,7 @@ let currentUser = null;
 let currentConfirmCallback = null;
 let initialLoadDone = false;
 
-const isVaultPage = window.location.pathname.includes('vault.html');
+const isVaultPage = window.location.pathname.includes('vault');
 
 if(txDate) txDate.valueAsDate = new Date();
 if(document.getElementById('currentYear')) document.getElementById('currentYear').textContent = new Date().getFullYear();
