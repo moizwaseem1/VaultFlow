@@ -218,12 +218,12 @@ onAuthStateChanged(auth, (user) => {
         if(navProfilePic) navProfilePic.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=3b82f6&color=fff`;
         if(updateNameInput) updateNameInput.value = displayName;
 
-        const isGoogleUser = user.providerData.some(p => p.providerId === 'google.com');
+        const hasPasswordProvider = user.providerData.some(p => p.providerId === 'password');
         if (passwordSettingsContainer) {
-            if (isGoogleUser) {
-                passwordSettingsContainer.classList.add('hidden');
-            } else {
+            if (hasPasswordProvider) {
                 passwordSettingsContainer.classList.remove('hidden');
+            } else {
+                passwordSettingsContainer.classList.add('hidden');
             }
         }
         
