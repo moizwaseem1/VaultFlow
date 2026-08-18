@@ -12,6 +12,7 @@ const firebaseConfig = {
   measurementId: "G-LFLQZ5880H"
 };
 
+const navLogoBtn = document.getElementById('navLogoBtn');
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -95,6 +96,16 @@ window.addEventListener('beforeinstallprompt', (e) => {
     if(installAppBtn) installAppBtn.classList.remove('hidden');
     if(bottomInstallBanner) bottomInstallBanner.classList.remove('hidden');
 });
+
+if(navLogoBtn) {
+    navLogoBtn.addEventListener('click', () => {
+        if(currentUser) {
+            showView('dashboard');
+        } else {
+            window.location.href = '/';
+        }
+    });
+}
 
 const triggerInstall = async () => {
     if (deferredPrompt) {
