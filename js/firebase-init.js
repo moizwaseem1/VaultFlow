@@ -1,7 +1,7 @@
 import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut, updateProfile, updatePassword, sendPasswordResetEmail, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, query, where, getDocs, deleteDoc, doc, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, query, where, getDocs, deleteDoc, doc, orderBy, setDoc, getDoc, updateDoc, deleteField } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCVcGA1FO0XXU0Em_s6MLfU8nCx_n3pqvs",
@@ -13,6 +13,7 @@ const firebaseConfig = {
   measurementId: "G-LFLQZ5880H"
 };
 
+const btnInitDeleteAccount = document.getElementById('btnInitDeleteAccount');
 const passwordSettingsContainer = document.getElementById('passwordSettingsContainer');
 const navLogoBtn = document.getElementById('navLogoBtn');
 const app = initializeApp(firebaseConfig);
@@ -222,8 +223,35 @@ const triggerSplash = (name) => {
     }, 2500); 
 };
 
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
     if (user && (user.emailVerified || user.providerData.some(p => p.providerId === 'google.com'))) {
+        try {
+            const userDoc = await getDoc(doc(db, "users", user.uid));
+            if (userDoc.exists() && userDoc.data().deletionScheduled) {
+                if (new Date().getTime() > userDoc.data().deletionScheduled) {
+                    try {
+                        await deleteDoc(doc(db, "users", user.uid));
+                        await user.delete();
+                    } catch(e) {
+                        await signOut(auth);
+                    }
+                    showToast('Your account was permanently deleted.', 'error');
+                    currentUser = null;
+                    const navLoginBtn = document.getElementById('navLoginBtn');
+                    if(navLoginBtn) navLoginBtn.classList.remove('hidden');
+                    if(navProfileSection) navProfileSection.classList.add('hidden');
+                    if(isVaultPage) {
+                        if(splashScreen) splashScreen.classList.add('hidden');
+                        showView('auth');
+                    }
+                    return;
+                } else {
+                    await updateDoc(doc(db, "users", user.uid), { deletionScheduled: deleteField() });
+                    showToast('Account recovery successful. Deletion cancelled.', 'success');
+                }
+            }
+        } catch (e) {}
+
         currentUser = user;
         const displayName = user.displayName || 'User';
         
@@ -571,5 +599,27 @@ if(btnGeneratePDF) {
         } catch (error) {
             showToast('Failed to generate PDF.', 'error');
         }
+    });
+}
+
+if(btnInitDeleteAccount) {
+    btnInitDeleteAccount.addEventListener('click', () => {
+        showConfirm('Warning: Your account and data will be permanently deleted in 24 hours. You will be signed out now. To cancel deletion, simply sign back in within 24 hours.', async () => {
+            if(currentUser) {
+                try {
+                    await setDoc(doc(db, "users", currentUser.uid), {
+                        deletionScheduled: new Date().getTime() + (24 * 60 * 60 * 1000)
+                    }, { merge: true });
+                    showToast('Account scheduled for deletion. Signing out...', 'success');
+                    setTimeout(async () => {
+                        if(profileDropdown) profileDropdown.classList.add('hidden');
+                        await signOut(auth);
+                        if(isVaultPage) window.location.href = '/';
+                    }, 2500);
+                } catch (error) {
+                    showToast('Failed to schedule deletion.', 'error');
+                }
+            }
+        });
     });
 }
