@@ -88,6 +88,13 @@ const isVaultPage = window.location.pathname.includes('vault');
 if(txDate) txDate.valueAsDate = new Date();
 if(document.getElementById('currentYear')) document.getElementById('currentYear').textContent = new Date().getFullYear();
 
+if(filterEnd) filterEnd.valueAsDate = new Date();
+if(filterStart) {
+    const pastDate = new Date();
+    pastDate.setDate(pastDate.getDate() - 30);
+    filterStart.valueAsDate = pastDate;
+}
+
 let deferredPrompt;
 const installAppBtn = document.getElementById('installAppBtn');
 
