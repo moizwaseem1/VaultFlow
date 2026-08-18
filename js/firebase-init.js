@@ -213,8 +213,8 @@ const triggerSplash = (name) => {
         setTimeout(() => {
             splashScreen.classList.add('hidden');
             showView('dashboard');
-        }, 1000); 
-    }, 3500); 
+        }, 500); 
+    }, 2500); 
 };
 
 onAuthStateChanged(auth, (user) => {
