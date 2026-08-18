@@ -12,6 +12,7 @@ const firebaseConfig = {
   measurementId: "G-LFLQZ5880H"
 };
 
+const passwordSettingsContainer = document.getElementById('passwordSettingsContainer');
 const navLogoBtn = document.getElementById('navLogoBtn');
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -216,6 +217,15 @@ onAuthStateChanged(auth, (user) => {
         
         if(navProfilePic) navProfilePic.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=3b82f6&color=fff`;
         if(updateNameInput) updateNameInput.value = displayName;
+
+        const isGoogleUser = user.providerData.some(p => p.providerId === 'google.com');
+        if (passwordSettingsContainer) {
+            if (isGoogleUser) {
+                passwordSettingsContainer.classList.add('hidden');
+            } else {
+                passwordSettingsContainer.classList.remove('hidden');
+            }
+        }
         
         const navLoginBtn = document.getElementById('navLoginBtn');
         if(navLoginBtn) navLoginBtn.classList.add('hidden');
