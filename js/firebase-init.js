@@ -13,6 +13,7 @@ const firebaseConfig = {
   measurementId: "G-LFLQZ5880H"
 };
 
+const summaryPeriod = document.getElementById('summaryPeriod');
 const btnResetAccountData = document.getElementById('btnResetAccountData');
 const btnResetFilter = document.getElementById('btnResetFilter');
 const btnInitDeleteAccount = document.getElementById('btnInitDeleteAccount');
@@ -93,15 +94,20 @@ let initialLoadDone = false;
 
 const isVaultPage = window.location.pathname.includes('vault');
 
+const setDateString = (input, dateObj) => {
+    if(!input) return;
+    const year = dateObj.getFullYear();
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    input.value = `${year}-${month}-${day}`;
+};
+
 if(txDate) txDate.valueAsDate = new Date();
 if(document.getElementById('currentYear')) document.getElementById('currentYear').textContent = new Date().getFullYear();
 
-if(filterEnd) filterEnd.valueAsDate = new Date();
-if(filterStart) {
-    const pastDate = new Date();
-    pastDate.setDate(pastDate.getDate() - 30);
-    filterStart.valueAsDate = pastDate;
-}
+const nowInit = new Date();
+if(filterStart) setDateString(filterStart, new Date(nowInit.getFullYear(), nowInit.getMonth(), 1));
+if(filterEnd) setDateString(filterEnd, new Date(nowInit.getFullYear(), nowInit.getMonth() + 1, 0));
 
 let deferredPrompt;
 const installAppBtn = document.getElementById('installAppBtn');
@@ -440,11 +446,10 @@ if(btnIncome) {
 
 if(btnResetFilter) {
     btnResetFilter.addEventListener('click', () => {
-        const pastDate = new Date();
-        pastDate.setDate(pastDate.getDate() - 30);
-        if(filterStart) filterStart.valueAsDate = pastDate;
-        if(filterEnd) filterEnd.valueAsDate = new Date();
+        if(filterStart) filterStart.value = '';
+        if(filterEnd) filterEnd.value = '';
         if(filterMethod) filterMethod.value = 'all';
+        if(summaryPeriod) summaryPeriod.value = 'all';
         loadData();
     });
 }
@@ -658,5 +663,22 @@ if(btnResetAccountData) {
                 }
             }
         });
+    });
+}
+
+if(summaryPeriod) {
+    summaryPeriod.addEventListener('change', () => {
+        const now = new Date();
+        if (summaryPeriod.value === 'month') {
+            setDateString(filterStart, new Date(now.getFullYear(), now.getMonth(), 1));
+            setDateString(filterEnd, new Date(now.getFullYear(), now.getMonth() + 1, 0));
+        } else if (summaryPeriod.value === 'year') {
+            setDateString(filterStart, new Date(now.getFullYear(), 0, 1));
+            setDateString(filterEnd, new Date(now.getFullYear(), 11, 31));
+        } else {
+            if(filterStart) filterStart.value = '';
+            if(filterEnd) filterEnd.value = '';
+        }
+        loadData();
     });
 }
