@@ -13,6 +13,7 @@ const firebaseConfig = {
   measurementId: "G-LFLQZ5880H"
 };
 
+const btnResetAccountData = document.getElementById('btnResetAccountData');
 const btnResetFilter = document.getElementById('btnResetFilter');
 const btnInitDeleteAccount = document.getElementById('btnInitDeleteAccount');
 const passwordSettingsContainer = document.getElementById('passwordSettingsContainer');
@@ -632,6 +633,28 @@ if(btnInitDeleteAccount) {
                     }, 2500);
                 } catch (error) {
                     showToast('Failed to schedule deletion.', 'error');
+                }
+            }
+        });
+    });
+}
+
+if(btnResetAccountData) {
+    btnResetAccountData.addEventListener('click', () => {
+        showConfirm('Warning: This will permanently delete ALL your statements and reset your balance to zero. This cannot be undone.', async () => {
+            if(currentUser) {
+                try {
+                    const q = query(collection(db, "statements"), where("userId", "==", currentUser.uid));
+                    const querySnapshot = await getDocs(q);
+                    const deletePromises = [];
+                    querySnapshot.forEach((docSnap) => {
+                        deletePromises.push(deleteDoc(doc(db, "statements", docSnap.id)));
+                    });
+                    await Promise.all(deletePromises);
+                    loadData();
+                    showToast('All statements deleted and balances reset.', 'success');
+                } catch (error) {
+                    showToast('Failed to reset account data.', 'error');
                 }
             }
         });
