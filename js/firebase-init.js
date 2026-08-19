@@ -623,11 +623,17 @@ if(btnGeneratePDF) {
             if (sDate) data = data.filter(d => d.date >= sDate);
             if (eDate) data = data.filter(d => d.date <= eDate);
             if (method !== 'all') data = data.filter(d => d.method === method);
+            if (summaryPeriod && (summaryPeriod.value === 'spent_month' || summaryPeriod.value === 'spent_year')) {
+                data = data.filter(d => d.spentOnMe === true);
+            }
 
             if (data.length === 0) { showToast('No statements found for the selected filters.', 'error'); return; }
 
             let income = 0; let expense = 0;
-            data.forEach(item => item.type === 'income' ? income += parseFloat(item.amount) : expense += parseFloat(item.amount));
+            data.forEach(item => {
+                if(String(item.type).toLowerCase() === 'income') income += parseFloat(item.amount);
+                else expense += parseFloat(item.amount);
+            });
             const balance = income - expense;
 
             const { jsPDF } = window.jspdf;
@@ -651,10 +657,16 @@ if(btnGeneratePDF) {
             docObj.setTextColor(15, 23, 42);
             docObj.text(`Closing Balance: ${formatCurrency(balance)}`, 140, 50);
             
-            const tableData = data.map(item => [
-                item.date, item.method.charAt(0).toUpperCase() + item.method.slice(1), item.reason || '-',
-                item.type === 'income' ? '(+)' : '(-)', formatCurrency(item.amount)
-            ]);
+            const tableData = data.map(item => {
+                const isIncome = String(item.type).toLowerCase() === 'income';
+                return [
+                    item.date, 
+                    item.method.charAt(0).toUpperCase() + item.method.slice(1), 
+                    item.reason || '-',
+                    isIncome ? 'Income' : 'Expense', 
+                    (isIncome ? '+ ' : '- ') + formatCurrency(item.amount)
+                ];
+            });
             
             docObj.autoTable({
                 startY: 58,
@@ -664,7 +676,7 @@ if(btnGeneratePDF) {
                 headStyles: { fillColor: [59, 130, 246] },
                 didParseCell: function(data) {
                     if (data.section === 'body' && (data.column.index === 3 || data.column.index === 4)) {
-                        data.cell.styles.textColor = data.row.raw[3] === '(+)' ? [34, 197, 94] : [239, 68, 68];
+                        data.cell.styles.textColor = data.row.raw[3] === 'Income' ? [34, 197, 94] : [239, 68, 68];
                     }
                 }
             });
