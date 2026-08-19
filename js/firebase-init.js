@@ -509,16 +509,29 @@ const loadData = async () => {
         if (sDate) data = data.filter(d => d.date >= sDate);
         if (eDate) data = data.filter(d => d.date <= eDate);
         if (method !== 'all') data = data.filter(d => d.method === method);
-        if (summaryPeriod && (summaryPeriod.value === 'spent_month' || summaryPeriod.value === 'spent_year')) {
-            data = data.filter(d => d.spentOnMe === true);
-        }        
-        let income = 0; let expense = 0;
-        data.forEach(item => item.type === 'income' ? income += parseFloat(item.amount) : expense += parseFloat(item.amount));
+        let periodIncome = 0;
+        let periodOverallExpense = 0;
         
-        totalIncomeEl.textContent = formatCurrency(income);
-        totalExpenseEl.textContent = formatCurrency(expense);
-        totalBalanceEl.textContent = formatCurrency(income - expense);
-        renderTable(data);
+        data.forEach(item => {
+            if (item.type === 'income') periodIncome += parseFloat(item.amount);
+            else periodOverallExpense += parseFloat(item.amount);
+        });
+        
+        let tableData = data;
+        let displayExpense = periodOverallExpense;
+        
+        if (summaryPeriod && (summaryPeriod.value === 'spent_month' || summaryPeriod.value === 'spent_year')) {
+            tableData = data.filter(d => d.spentOnMe === true);
+            displayExpense = 0;
+            tableData.forEach(item => {
+                if (item.type === 'expense') displayExpense += parseFloat(item.amount);
+            });
+        }
+        
+        totalIncomeEl.textContent = formatCurrency(periodIncome);
+        totalExpenseEl.textContent = formatCurrency(displayExpense);
+        totalBalanceEl.textContent = formatCurrency(periodIncome - periodOverallExpense);
+        renderTable(tableData);
     } catch (error) {
         showToast('Error loading data: ' + error.message, 'error');
     }
