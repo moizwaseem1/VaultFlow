@@ -60,8 +60,10 @@ const txMethod = document.getElementById('txMethod');
 const txDate = document.getElementById('txDate');
 const txReason = document.getElementById('txReason');
 const txProof = document.getElementById('txProof');
+const txSpentOnMe = document.getElementById('txSpentOnMe');
 const transactionForm = document.getElementById('transactionForm');
-const statementsList = document.getElementById('statementsList');
+window.globalStatements = [];
+window.editingStatementId = null;const statementsList = document.getElementById('statementsList');
 const totalBalanceEl = document.getElementById('totalBalance');
 const totalIncomeEl = document.getElementById('totalIncome');
 const totalExpenseEl = document.getElementById('totalExpense');
@@ -463,7 +465,7 @@ const renderTable = (data) => {
         const sign = item.type === 'income' ? '+' : '-';
         
         let detailsHtml = `<div class="font-medium capitalize text-gray-900 dark:text-gray-100">${item.method}</div>
-                           <div class="text-xs text-gray-500 mt-1">${item.reason || 'No reason'}</div>`;
+                           <div class="text-xs text-gray-500 mt-1">${item.reason || 'No reason'} ${item.spentOnMe ? '<span class="ml-1 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400">Me</span>' : ''}</div>`;
         
         if (item.proof) {
             detailsHtml += `<a href="${item.proof}" target="_blank" class="text-xs text-primary hover:underline mt-1 block"><i class="fa-solid fa-link"></i> View Proof</a>`;
@@ -475,7 +477,10 @@ const renderTable = (data) => {
             <td class="px-3 py-4 whitespace-nowrap text-sm text-right font-bold ${typeColor}">
                 ${sign} ${formatCurrency(item.amount)}
             </td>
-            <td class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium">
+            <td class="px-3 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
+                <button onclick="window.handleEdit('${item.id}')" class="text-blue-500 hover:text-blue-700 transition">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                </button>
                 <button onclick="window.handleDelete('${item.id}')" class="text-red-500 hover:text-red-700 transition">
                     <i class="fa-solid fa-trash-can"></i>
                 </button>
@@ -492,6 +497,7 @@ const loadData = async () => {
         const querySnapshot = await getDocs(q);
         let data = [];
         querySnapshot.forEach((doc) => data.push({ id: doc.id, ...doc.data() }));
+        window.globalStatements = data;
 
         const sDate = filterStart.value;
         const eDate = filterEnd.value;
@@ -500,7 +506,9 @@ const loadData = async () => {
         if (sDate) data = data.filter(d => d.date >= sDate);
         if (eDate) data = data.filter(d => d.date <= eDate);
         if (method !== 'all') data = data.filter(d => d.method === method);
-        
+        if (summaryPeriod && (summaryPeriod.value === 'spent_month' || summaryPeriod.value === 'spent_year')) {
+            data = data.filter(d => d.spentOnMe === true);
+        }        
         let income = 0; let expense = 0;
         data.forEach(item => item.type === 'income' ? income += parseFloat(item.amount) : expense += parseFloat(item.amount));
         
@@ -525,6 +533,29 @@ window.handleDelete = (id) => {
     });
 };
 
+window.handleEdit = (id) => {
+    const st = window.globalStatements.find(s => s.id === id);
+    if(st) {
+        window.editingStatementId = id;
+        txType.value = st.type;
+        if(st.type === 'income') {
+            btnIncome.click();
+        } else {
+            btnExpense.click();
+        }
+        txAmount.value = st.amount;
+        txMethod.value = st.method;
+        txDate.value = st.date;
+        txReason.value = st.reason || '';
+        txProof.value = st.proof || '';
+        if(txSpentOnMe) txSpentOnMe.checked = st.spentOnMe || false;
+        
+        const btnSaveStatement = document.getElementById('btnSaveStatement');
+        if(btnSaveStatement) btnSaveStatement.textContent = 'Update Statement';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+};
+
 if(transactionForm) {
     transactionForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -538,14 +569,23 @@ if(transactionForm) {
             date: txDate.value,
             reason: txReason.value,
             proof: txProof.value,
-            timestamp: new Date().getTime()
+            spentOnMe: txSpentOnMe ? txSpentOnMe.checked : false
         };
         try {
-            await addDoc(collection(db, "statements"), statement);
+            if(window.editingStatementId) {
+                await updateDoc(doc(db, "statements", window.editingStatementId), statement);
+                showToast('Statement updated successfully!', 'success');
+                window.editingStatementId = null;
+                const btnSaveStatement = document.getElementById('btnSaveStatement');
+                if(btnSaveStatement) btnSaveStatement.textContent = 'Save Statement';
+            } else {
+                statement.timestamp = new Date().getTime();
+                await addDoc(collection(db, "statements"), statement);
+                showToast('Statement added successfully!', 'success');
+            }
             transactionForm.reset();
             txDate.valueAsDate = new Date();
             loadData();
-            showToast('Statement added successfully!', 'success');
         } catch (error) {
             showToast(error.message.replace('Firebase: ', ''), 'error');
         }
@@ -669,16 +709,10 @@ if(btnResetAccountData) {
 if(summaryPeriod) {
     summaryPeriod.addEventListener('change', () => {
         const now = new Date();
-        if (summaryPeriod.value === 'month') {
+        if (summaryPeriod.value === 'month' || summaryPeriod.value === 'spent_month') {
             setDateString(filterStart, new Date(now.getFullYear(), now.getMonth(), 1));
             setDateString(filterEnd, new Date(now.getFullYear(), now.getMonth() + 1, 0));
-        } else if (summaryPeriod.value === 'year') {
+        } else if (summaryPeriod.value === 'year' || summaryPeriod.value === 'spent_year') {
             setDateString(filterStart, new Date(now.getFullYear(), 0, 1));
             setDateString(filterEnd, new Date(now.getFullYear(), 11, 31));
         } else {
-            if(filterStart) filterStart.value = '';
-            if(filterEnd) filterEnd.value = '';
-        }
-        loadData();
-    });
-}
