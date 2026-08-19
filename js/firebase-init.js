@@ -13,6 +13,7 @@ const firebaseConfig = {
   measurementId: "G-LFLQZ5880H"
 };
 
+const btnResetFilter = document.getElementById('btnResetFilter');
 const btnInitDeleteAccount = document.getElementById('btnInitDeleteAccount');
 const passwordSettingsContainer = document.getElementById('passwordSettingsContainer');
 const navLogoBtn = document.getElementById('navLogoBtn');
@@ -436,6 +437,17 @@ if(btnIncome) {
     });
 }
 
+if(btnResetFilter) {
+    btnResetFilter.addEventListener('click', () => {
+        const pastDate = new Date();
+        pastDate.setDate(pastDate.getDate() - 30);
+        if(filterStart) filterStart.valueAsDate = pastDate;
+        if(filterEnd) filterEnd.valueAsDate = new Date();
+        if(filterMethod) filterMethod.value = 'all';
+        loadData();
+    });
+}
+
 const renderTable = (data) => {
     if(!statementsList) return;
     statementsList.innerHTML = '';
@@ -594,7 +606,9 @@ if(btnGeneratePDF) {
                     }
                 }
             });
-            docObj.save(`VaultFlow_Statement_${new Date().getTime()}.pdf`);
+            const fileNameStart = sDate || 'AllTime';
+            const fileNameEnd = eDate || 'Present';
+            docObj.save(`VaultFlow Account Statement (${fileNameStart}) - (${fileNameEnd}).pdf`);
             showToast('PDF Exported Successfully!', 'success');
         } catch (error) {
             showToast('Failed to generate PDF.', 'error');
