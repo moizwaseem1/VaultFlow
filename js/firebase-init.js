@@ -13,12 +13,6 @@ const firebaseConfig = {
   measurementId: "G-LFLQZ5880H"
 };
 
-const summaryPeriod = document.getElementById('summaryPeriod');
-const btnResetAccountData = document.getElementById('btnResetAccountData');
-const btnResetFilter = document.getElementById('btnResetFilter');
-const btnInitDeleteAccount = document.getElementById('btnInitDeleteAccount');
-const passwordSettingsContainer = document.getElementById('passwordSettingsContainer');
-const navLogoBtn = document.getElementById('navLogoBtn');
 const app = initializeApp(firebaseConfig);
 const appCheck = initializeAppCheck(app, {
     provider: new ReCaptchaV3Provider('6LeC3IwtAAAAACnZq6GC5IstTj_LOFkhk-Qk5iS6'),
@@ -28,6 +22,12 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const googleProvider = new GoogleAuthProvider();
 
+const summaryPeriod = document.getElementById('summaryPeriod');
+const btnResetAccountData = document.getElementById('btnResetAccountData');
+const btnResetFilter = document.getElementById('btnResetFilter');
+const btnInitDeleteAccount = document.getElementById('btnInitDeleteAccount');
+const passwordSettingsContainer = document.getElementById('passwordSettingsContainer');
+const navLogoBtn = document.getElementById('navLogoBtn');
 const splashScreen = document.getElementById('splashScreen');
 const splashText = document.getElementById('splashText');
 const navProfileSection = document.getElementById('navProfileSection');
@@ -62,8 +62,11 @@ const txReason = document.getElementById('txReason');
 const txProof = document.getElementById('txProof');
 const txSpentOnMe = document.getElementById('txSpentOnMe');
 const transactionForm = document.getElementById('transactionForm');
+
 window.globalStatements = [];
-window.editingStatementId = null;const statementsList = document.getElementById('statementsList');
+window.editingStatementId = null;
+
+const statementsList = document.getElementById('statementsList');
 const totalBalanceEl = document.getElementById('totalBalance');
 const totalIncomeEl = document.getElementById('totalIncome');
 const totalExpenseEl = document.getElementById('totalExpense');
@@ -121,16 +124,6 @@ window.addEventListener('beforeinstallprompt', (e) => {
     if(bottomInstallBanner) bottomInstallBanner.classList.remove('hidden');
 });
 
-if(navLogoBtn) {
-    navLogoBtn.addEventListener('click', () => {
-        if(currentUser) {
-            showView('dashboard');
-        } else {
-            window.location.href = '/';
-        }
-    });
-}
-
 const triggerInstall = async () => {
     if (deferredPrompt) {
         deferredPrompt.prompt();
@@ -164,6 +157,16 @@ const showView = (viewName) => {
         profileUI.classList.remove('hidden');
     }
 };
+
+if(navLogoBtn) {
+    navLogoBtn.addEventListener('click', () => {
+        if(currentUser) {
+            showView('dashboard');
+        } else {
+            window.location.href = '/';
+        }
+    });
+}
 
 if(btnOpenDashboard) btnOpenDashboard.addEventListener('click', () => { profileDropdown.classList.add('hidden'); showView('dashboard'); });
 if(btnOpenProfilePage) btnOpenProfilePage.addEventListener('click', () => { profileDropdown.classList.add('hidden'); showView('profile'); });
@@ -716,3 +719,9 @@ if(summaryPeriod) {
             setDateString(filterStart, new Date(now.getFullYear(), 0, 1));
             setDateString(filterEnd, new Date(now.getFullYear(), 11, 31));
         } else {
+            if(filterStart) filterStart.value = '';
+            if(filterEnd) filterEnd.value = '';
+        }
+        loadData();
+    });
+}
