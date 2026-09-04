@@ -71,6 +71,7 @@ const statementsList = document.getElementById('statementsList');
 const totalBalanceEl = document.getElementById('totalBalance');
 const totalIncomeEl = document.getElementById('totalIncome');
 const totalExpenseEl = document.getElementById('totalExpense');
+const totalExpenseLabel = document.getElementById('totalExpenseLabel');
 const filterStart = document.getElementById('filterStart');
 const filterEnd = document.getElementById('filterEnd');
 const filterMethod = document.getElementById('filterMethod');
@@ -524,6 +525,8 @@ const loadData = async () => {
         
         let tableData = data;
         let displayExpense = periodOverallExpense;
+        let expenseLabel = "Total Expense";
+        let expenseColor = "text-3xl font-bold mt-2 text-red-500 transition-colors duration-300";
         
         if (summaryPeriod) {
             if (summaryPeriod.value === 'spent_month' || summaryPeriod.value === 'spent_year') {
@@ -532,12 +535,19 @@ const loadData = async () => {
                 tableData.forEach(item => {
                     if (item.type === 'expense') displayExpense += parseFloat(item.amount);
                 });
+                expenseLabel = "Total Spent on Me";
+                expenseColor = "text-3xl font-bold mt-2 text-blue-800 dark:text-blue-400 transition-colors duration-300";
             } else if (summaryPeriod.value === 'saved_month' || summaryPeriod.value === 'saved_year') {
                 tableData = data.filter(d => d.moneySaved === true);
                 displayExpense = 0;
                 tableData.forEach(item => displayExpense += parseFloat(item.amount));
+                expenseLabel = "Total Saved";
+                expenseColor = "text-3xl font-bold mt-2 text-green-600 dark:text-green-500 transition-colors duration-300";
             }
         }
+        
+        if(totalExpenseLabel) totalExpenseLabel.textContent = expenseLabel;
+        if(totalExpenseEl) totalExpenseEl.className = expenseColor;
         
         totalIncomeEl.textContent = formatCurrency(periodIncome);
         totalExpenseEl.textContent = formatCurrency(displayExpense);
