@@ -61,6 +61,7 @@ const txDate = document.getElementById('txDate');
 const txReason = document.getElementById('txReason');
 const txProof = document.getElementById('txProof');
 const txSpentOnMe = document.getElementById('txSpentOnMe');
+const txMoneySaved = document.getElementById('txMoneySaved');
 const transactionForm = document.getElementById('transactionForm');
 
 window.globalStatements = [];
@@ -467,9 +468,13 @@ const renderTable = (data) => {
         const typeColor = item.type === 'income' ? 'text-green-500' : 'text-red-500';
         const sign = item.type === 'income' ? '+' : '-';
         
-        let detailsHtml = `<div class="font-medium capitalize text-gray-900 dark:text-gray-100">${item.method}</div>
-                           <div class="text-xs text-gray-500 mt-1">${item.reason || 'No reason'} ${item.spentOnMe ? '<span class="ml-1 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400">Me</span>' : ''}</div>`;
+        let badges = '';
+        if(item.spentOnMe) badges += '<span class="ml-1 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400">Me</span>';
+        if(item.moneySaved) badges += '<span class="ml-1 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">Saved</span>';
         
+        let detailsHtml = `<div class="font-medium capitalize text-gray-900 dark:text-gray-100">${item.method}</div>
+                           <div class="text-xs text-gray-500 mt-1">${item.reason || 'No reason'} ${badges}</div>`;
+      
         if (item.proof) {
             detailsHtml += `<a href="${item.proof}" target="_blank" class="text-xs text-primary hover:underline mt-1 block"><i class="fa-solid fa-link"></i> View Proof</a>`;
         }
@@ -520,12 +525,18 @@ const loadData = async () => {
         let tableData = data;
         let displayExpense = periodOverallExpense;
         
-        if (summaryPeriod && (summaryPeriod.value === 'spent_month' || summaryPeriod.value === 'spent_year')) {
-            tableData = data.filter(d => d.spentOnMe === true);
-            displayExpense = 0;
-            tableData.forEach(item => {
-                if (item.type === 'expense') displayExpense += parseFloat(item.amount);
-            });
+        if (summaryPeriod) {
+            if (summaryPeriod.value === 'spent_month' || summaryPeriod.value === 'spent_year') {
+                tableData = data.filter(d => d.spentOnMe === true);
+                displayExpense = 0;
+                tableData.forEach(item => {
+                    if (item.type === 'expense') displayExpense += parseFloat(item.amount);
+                });
+            } else if (summaryPeriod.value === 'saved_month' || summaryPeriod.value === 'saved_year') {
+                tableData = data.filter(d => d.moneySaved === true);
+                displayExpense = 0;
+                tableData.forEach(item => displayExpense += parseFloat(item.amount));
+            }
         }
         
         totalIncomeEl.textContent = formatCurrency(periodIncome);
@@ -565,7 +576,8 @@ window.handleEdit = (id) => {
         txReason.value = st.reason || '';
         txProof.value = st.proof || '';
         if(txSpentOnMe) txSpentOnMe.checked = st.spentOnMe || false;
-        
+        if(txMoneySaved) txMoneySaved.checked = st.moneySaved || false;
+      
         const btnSaveStatement = document.getElementById('btnSaveStatement');
         if(btnSaveStatement) btnSaveStatement.textContent = 'Update Statement';
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -585,8 +597,10 @@ if(transactionForm) {
             date: txDate.value,
             reason: txReason.value,
             proof: txProof.value,
-            spentOnMe: txSpentOnMe ? txSpentOnMe.checked : false
+            spentOnMe: txSpentOnMe ? txSpentOnMe.checked : false,
+            moneySaved: txMoneySaved ? txMoneySaved.checked : false
         };
+      
         try {
             if(window.editingStatementId) {
                 await updateDoc(doc(db, "statements", window.editingStatementId), statement);
@@ -623,8 +637,12 @@ if(btnGeneratePDF) {
             if (sDate) data = data.filter(d => d.date >= sDate);
             if (eDate) data = data.filter(d => d.date <= eDate);
             if (method !== 'all') data = data.filter(d => d.method === method);
-            if (summaryPeriod && (summaryPeriod.value === 'spent_month' || summaryPeriod.value === 'spent_year')) {
-                data = data.filter(d => d.spentOnMe === true);
+            if (summaryPeriod) {
+                if (summaryPeriod.value === 'spent_month' || summaryPeriod.value === 'spent_year') {
+                    data = data.filter(d => d.spentOnMe === true);
+                } else if (summaryPeriod.value === 'saved_month' || summaryPeriod.value === 'saved_year') {
+                    data = data.filter(d => d.moneySaved === true);
+                }
             }
 
             if (data.length === 0) { showToast('No statements found for the selected filters.', 'error'); return; }
@@ -737,10 +755,10 @@ if(btnResetAccountData) {
 if(summaryPeriod) {
     summaryPeriod.addEventListener('change', () => {
         const now = new Date();
-        if (summaryPeriod.value === 'month' || summaryPeriod.value === 'spent_month') {
+        if (summaryPeriod.value === 'month' || summaryPeriod.value === 'spent_month' || summaryPeriod.value === 'saved_month') {
             setDateString(filterStart, new Date(now.getFullYear(), now.getMonth(), 1));
             setDateString(filterEnd, new Date(now.getFullYear(), now.getMonth() + 1, 0));
-        } else if (summaryPeriod.value === 'year' || summaryPeriod.value === 'spent_year') {
+        } else if (summaryPeriod.value === 'year' || summaryPeriod.value === 'spent_year' || summaryPeriod.value === 'saved_year') {
             setDateString(filterStart, new Date(now.getFullYear(), 0, 1));
             setDateString(filterEnd, new Date(now.getFullYear(), 11, 31));
         } else {
