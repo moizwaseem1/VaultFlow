@@ -240,33 +240,7 @@ const triggerSplash = (name) => {
 
 onAuthStateChanged(auth, async (user) => {
     if (user && (user.emailVerified || user.providerData.some(p => p.providerId === 'google.com'))) {
-        try {
-            const userDoc = await getDoc(doc(db, "users", user.uid));
-            if (userDoc.exists() && userDoc.data().deletionScheduled) {
-                if (new Date().getTime() > userDoc.data().deletionScheduled) {
-                    try {
-                        await deleteDoc(doc(db, "users", user.uid));
-                        await user.delete();
-                    } catch(e) {
-                        await signOut(auth);
-                    }
-                    showToast('Your account was permanently deleted.', 'error');
-                    currentUser = null;
-                    const navLoginBtn = document.getElementById('navLoginBtn');
-                    if(navLoginBtn) navLoginBtn.classList.remove('hidden');
-                    if(navProfileSection) navProfileSection.classList.add('hidden');
-                    if(isVaultPage) {
-                        if(splashScreen) splashScreen.classList.add('hidden');
-                        showView('auth');
-                    }
-                    return;
-                } else {
-                    await updateDoc(doc(db, "users", user.uid), { deletionScheduled: deleteField() });
-                    showToast('Account recovery successful. Deletion cancelled.', 'success');
-                }
-            }
-        } catch (e) {}
-
+        
         currentUser = user;
         const displayName = user.displayName || 'User';
         
@@ -294,6 +268,33 @@ onAuthStateChanged(auth, async (user) => {
                 showView('dashboard');
             }
         }
+
+        try {
+            const userDoc = await getDoc(doc(db, "users", user.uid));
+            if (userDoc.exists() && userDoc.data().deletionScheduled) {
+                if (new Date().getTime() > userDoc.data().deletionScheduled) {
+                    try {
+                        await deleteDoc(doc(db, "users", user.uid));
+                        await user.delete();
+                    } catch(e) {
+                        await signOut(auth);
+                    }
+                    showToast('Your account was permanently deleted.', 'error');
+                    currentUser = null;
+                    if(navLoginBtn) navLoginBtn.classList.remove('hidden');
+                    if(navProfileSection) navProfileSection.classList.add('hidden');
+                    if(isVaultPage) {
+                        if(splashScreen) splashScreen.classList.add('hidden');
+                        showView('auth');
+                    }
+                    return;
+                } else {
+                    await updateDoc(doc(db, "users", user.uid), { deletionScheduled: deleteField() });
+                    showToast('Account recovery successful. Deletion cancelled.', 'success');
+                }
+            }
+        } catch (e) {}
+
     } else {
         currentUser = null;
         const navLoginBtn = document.getElementById('navLoginBtn');
